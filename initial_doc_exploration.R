@@ -86,7 +86,7 @@ ggplot(aes(value.x, mean.doc)) +
   geom_smooth(method = "lm", formula = y~x, se = FALSE, colour = "black") +
   labs(x = "Latitude", y = "DOC (mg/L)")
 
-### 4.05 - DOC and latitude
+### 4.05 - DOC and longitude
 
 long <- ws_doc[ws_doc$variable.x == "longitude" & ws_doc$mean.doc, ]
 
@@ -96,7 +96,7 @@ long %>%
   geom_smooth(method = "lm", formula = y~x, se = FALSE, colour = "black") +
   labs(x = "Longitude", y = "DOC (mg/L)")
 
-### 4.06 - DOC and latitude
+### 4.06 - DOC and elevation
 
 elev <- ws_doc[ws_doc$variable.x == "elevation" & ws_doc$mean.doc, ]
 
@@ -106,6 +106,65 @@ elev %>%
   geom_smooth(method = "lm", formula = y~x, se = FALSE, colour = "black") +
   labs(x = "Elevation (masl)", y = "DOC (mg/L)")
 
+### 4.07 - DOC and open water
+
+open_w <- ws_doc[ws_doc$variable.x == "open.water" & ws_doc$mean.doc, ]
+
+open_w %>% 
+  ggplot(aes(value.x, mean.doc)) +
+  geom_point() +
+  geom_smooth(method = "lm", formula = y~x, se = FALSE, colour = "black") +
+  labs(x = "Open water (%)", y = "DOC (mg/L)")
+
+### 4.08 - DOC and wetland
+
+wetland <- ws_doc[ws_doc$variable.x == "wetland" & ws_doc$mean.doc, ]
+
+wetland %>% 
+  ggplot(aes(value.x, mean.doc)) +
+  geom_point() +
+  geom_smooth(method = "lm", formula = y~x, se = FALSE, colour = "black") +
+  labs(x = "Wetland (%)", y = "DOC (mg/L)")
+
+### 4.09 - DOC and bog
+
+bog <- ws_doc[ws_doc$variable.x == "bog" & ws_doc$mean.doc, ]
+
+bog %>% 
+  ggplot(aes(value.x, mean.doc)) +
+  geom_point() +
+  geom_smooth(method = "lm", formula = y~x, se = FALSE, colour = "black") +
+  labs(x = "Bog (%)", y = "DOC (mg/L)")
+
+### 4.10 - DOC and deciduous
+
+deciduous <- ws_doc[ws_doc$variable.x == "deciduous" & ws_doc$mean.doc, ]
+
+deciduous %>% 
+  ggplot(aes(value.x, mean.doc)) +
+  geom_point() +
+  geom_smooth(method = "lm", formula = y~x, se = FALSE, colour = "black") +
+  labs(x = "Deciduous tree cover (%)", y = "DOC (mg/L)")
+
+### 4.11 - DOC and conifer
+
+conifer <- ws_doc[ws_doc$variable.x == "coniferous" & ws_doc$mean.doc, ]
+
+conifer %>% 
+  ggplot(aes(value.x, mean.doc)) +
+  geom_point() +
+  geom_smooth(method = "lm", formula = y~x, se = FALSE, colour = "black") +
+  labs(x = "Coniferous tree cover (%)", y = "DOC (mg/L)")
+
+### 4.12 - DOC and mixed tree coverage
+
+mixed <- ws_doc[ws_doc$variable.x == "mixed" & ws_doc$mean.doc, ]
+
+mixed %>% 
+  ggplot(aes(value.x, mean.doc)) +
+  geom_point() +
+  geom_smooth(method = "lm", formula = y~x, se = FALSE, colour = "black") +
+  labs(x = "Mixed tree cover (%)", y = "DOC (mg/L)")
 
 ## 5. SAVING // EXPORTING ----
 

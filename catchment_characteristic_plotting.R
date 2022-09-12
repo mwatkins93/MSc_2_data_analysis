@@ -47,11 +47,10 @@ ws_wide %>%
 expl_plots <- function(x, y) {
     ggplot(ws_wide, aes(x = .data[[x]], y = .data[[y]])) +
     geom_point() +
-    geom_smooth(method = "lm", formula = y~x, se = FALSE, colour = "black") +
-    scale_x_log10()
+    geom_smooth(method = "lm", formula = y~x, se = FALSE, colour = "black")
 }
 
-expl_plots(x = "area", y = "wetland") # test the function - it works
+expl_plots(x = "wetland", y = "deciduous") # test the function - it works
 
 
 ## 5. SAVING // EXPORTING ----
