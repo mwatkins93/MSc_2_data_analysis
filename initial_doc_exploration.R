@@ -37,7 +37,8 @@ doc <- chem_out %>%
 
 ws_doc <- left_join(ws_char, doc, by = c("site","catchment.id")) %>% 
   group_by(site) %>% 
-  mutate(mean.doc = mean(value.y))
+  mutate(mean.doc = mean(value.y),
+         doc.sd = sd(value.y))
 
 ## 4. PLOTTING ----
 
@@ -57,43 +58,52 @@ doc %>%
 
 ### 4.02 - DOC and catchment area
 
-area_join %>% 
+area_doc <- ws_doc[ws_doc$variable.x == "area", ]
+
+
+area_doc %>% 
   ggplot(aes(value.x, mean.doc)) +
   #geom_text(hjust = 0, vjust = 0) +
   geom_point() +
   scale_x_log10() +
-  labs(x = expression(paste("Drainage Area ", (km^2))), y = "DOC (ppm)")
-  #geom_smooth(method='lm', formula= y~x)
+  geom_errorbar(aes(ymin = mean.doc - doc.sd, ymax = mean.doc + doc.sd)) +
+  labs(x = expression(paste("Drainage Area ", (km^2))), y = "DOC (ppm)") +
+  geom_smooth(method='lm', formula= y~x, se = FALSE)
 
 # add labels - label = catchment.id
 
 ### 4.03 - DOC and slope
 
-slope_j %>% 
+slope_doc <- ws_doc[ws_doc$variable.x == "slope", ]
+
+slope_doc %>% 
   ggplot(aes(value.x, mean.doc)) +
   #geom_text(hjust = 0, vjust = 0) +
-  geom_smooth(method = "lm", formula = y~x, se = FALSE, colour = "black") +
+  geom_smooth(method = "lm", formula = y~x, se = FALSE) +
   geom_point() +
+  geom_errorbar(aes(ymin = mean.doc - doc.sd, ymax = mean.doc + doc.sd)) +
   labs(x = "Slope (%)", y = "DOC (ppm)")
 
 ### 4.04 - DOC and latitude
 
-lat <- ws_doc[ws_doc$variable.x == "latitude" & ws_doc$mean.doc, ]
+lat <- ws_doc[ws_doc$variable.x == "latitude", ]
 
 lat %>% 
 ggplot(aes(value.x, mean.doc)) +
   geom_point() +
-  geom_smooth(method = "lm", formula = y~x, se = FALSE, colour = "black") +
+  geom_smooth(method = "lm", formula = y~x, se = FALSE) +
+  geom_errorbar(aes(ymin = mean.doc - doc.sd, ymax = mean.doc + doc.sd)) +
   labs(x = "Latitude", y = "DOC (mg/L)")
 
 ### 4.05 - DOC and longitude
 
-long <- ws_doc[ws_doc$variable.x == "longitude" & ws_doc$mean.doc, ]
+long <- ws_doc[ws_doc$variable.x == "longitude", ]
 
 long %>% 
   ggplot(aes(value.x, mean.doc)) +
   geom_point() +
-  geom_smooth(method = "lm", formula = y~x, se = FALSE, colour = "black") +
+  geom_smooth(method = "lm", formula = y~x, se = FALSE) +
+  geom_errorbar(aes(ymin = mean.doc - doc.sd, ymax = mean.doc + doc.sd)) +
   labs(x = "Longitude", y = "DOC (mg/L)")
 
 ### 4.06 - DOC and elevation
@@ -103,67 +113,74 @@ elev <- ws_doc[ws_doc$variable.x == "elevation" & ws_doc$mean.doc, ]
 elev %>% 
   ggplot(aes(value.x, mean.doc)) +
   geom_point() +
-  geom_smooth(method = "lm", formula = y~x, se = FALSE, colour = "black") +
+  geom_smooth(method = "lm", formula = y~x, se = FALSE) +
+  geom_errorbar(aes(ymin = mean.doc - doc.sd, ymax = mean.doc + doc.sd)) +
   labs(x = "Elevation (masl)", y = "DOC (mg/L)")
 
 ### 4.07 - DOC and open water
 
-open_w <- ws_doc[ws_doc$variable.x == "open.water" & ws_doc$mean.doc, ]
+open_w <- ws_doc[ws_doc$variable.x == "open.water", ]
 
 open_w %>% 
   ggplot(aes(value.x, mean.doc)) +
   geom_point() +
-  geom_smooth(method = "lm", formula = y~x, se = FALSE, colour = "black") +
+  geom_smooth(method = "lm", formula = y~x, se = FALSE) +
+  geom_errorbar(aes(ymin = mean.doc - doc.sd, ymax = mean.doc + doc.sd)) +
   labs(x = "Open water (%)", y = "DOC (mg/L)")
 
 ### 4.08 - DOC and wetland
 
-wetland <- ws_doc[ws_doc$variable.x == "wetland" & ws_doc$mean.doc, ]
+wetland <- ws_doc[ws_doc$variable.x == "wetland", ]
 
 wetland %>% 
   ggplot(aes(value.x, mean.doc)) +
   geom_point() +
-  geom_smooth(method = "lm", formula = y~x, se = FALSE, colour = "black") +
+  geom_smooth(method = "lm", formula = y~x, se = FALSE) +
+  geom_errorbar(aes(ymin = mean.doc - doc.sd, ymax = mean.doc + doc.sd)) +
   labs(x = "Wetland (%)", y = "DOC (mg/L)")
 
 ### 4.09 - DOC and bog
 
-bog <- ws_doc[ws_doc$variable.x == "bog" & ws_doc$mean.doc, ]
+bog <- ws_doc[ws_doc$variable.x == "bog", ]
 
 bog %>% 
   ggplot(aes(value.x, mean.doc)) +
   geom_point() +
-  geom_smooth(method = "lm", formula = y~x, se = FALSE, colour = "black") +
+  geom_smooth(method = "lm", formula = y~x, se = FALSE) +
+  geom_errorbar(aes(ymin = mean.doc - doc.sd, ymax = mean.doc + doc.sd)) +
   labs(x = "Bog (%)", y = "DOC (mg/L)")
 
 ### 4.10 - DOC and deciduous
 
-deciduous <- ws_doc[ws_doc$variable.x == "deciduous" & ws_doc$mean.doc, ]
+deciduous <- ws_doc[ws_doc$variable.x == "deciduous", ]
 
 deciduous %>% 
   ggplot(aes(value.x, mean.doc)) +
   geom_point() +
-  geom_smooth(method = "lm", formula = y~x, se = FALSE, colour = "black") +
+  geom_smooth(method = "lm", formula = y~x, se = FALSE,) +
+  geom_errorbar(aes(ymin = mean.doc - doc.sd, ymax = mean.doc + doc.sd)) +
   labs(x = "Deciduous tree cover (%)", y = "DOC (mg/L)")
 
 ### 4.11 - DOC and conifer
 
-conifer <- ws_doc[ws_doc$variable.x == "coniferous" & ws_doc$mean.doc, ]
+conifer <- ws_doc[ws_doc$variable.x == "coniferous", ]
 
 conifer %>% 
   ggplot(aes(value.x, mean.doc)) +
   geom_point() +
-  geom_smooth(method = "lm", formula = y~x, se = FALSE, colour = "black") +
+  geom_smooth(method = "lm", formula = y~x, se = FALSE) +
+  geom_errorbar(aes(ymin = mean.doc - doc.sd, ymax = mean.doc + doc.sd)) +
   labs(x = "Coniferous tree cover (%)", y = "DOC (mg/L)")
 
 ### 4.12 - DOC and mixed tree coverage
 
-mixed <- ws_doc[ws_doc$variable.x == "mixed" & ws_doc$mean.doc, ]
+mixed <- ws_doc[ws_doc$variable.x == "mixed", ]
 
 mixed %>% 
   ggplot(aes(value.x, mean.doc)) +
   geom_point() +
-  geom_smooth(method = "lm", formula = y~x, se = FALSE, colour = "black") +
+  geom_smooth(method = "lm", formula = y~x, se = FALSE) +
+  geom_errorbar(aes(ymin = mean.doc - doc.sd, ymax = mean.doc + doc.sd)) +
   labs(x = "Mixed tree cover (%)", y = "DOC (mg/L)")
 
 ## 5. SAVING // EXPORTING ----
