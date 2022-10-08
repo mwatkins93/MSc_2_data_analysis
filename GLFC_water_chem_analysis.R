@@ -40,7 +40,7 @@ ggpubr::show_point_shapes()
 
 ### 2.1 Bring in water chem spreadsheet
 
-setwd("/Volumes/MW/2020 Trent University/Data/GLFC-Water Chemistry") # for now do this to access spreadsheet
+setwd("/Volumes/MW/2020 Trent University/Data/GLFC Water Chemistry") # for now do this to access spreadsheet
 
 glfc_chem <- read_xlsx("GLFC_water_chem.xlsx")
 
@@ -48,18 +48,18 @@ glfc_chem <- read_xlsx("GLFC_water_chem.xlsx")
 
 ### 3.01 ---- Convert sample date to date format ----
 
-glfc_chem$`Sample Date` <- mdy(glfc_chem$`Sample Date`)
+glfc_chem$`sample.date` <- mdy(glfc_chem$`sample.date`)
 
 ### 3.02 Tidy up some small column stuff
 
-ws_split <- str_split_fixed(glfc_chem$`Sample ID`, "-S-", 2) # split into two columns and drop the S
+ws_split <- str_split_fixed(glfc_chem$`sample.id`, "-S-", 2) # split into two columns and drop the S
 
 colnames(ws_split) <- c("catchment", "sample.number") # rename columns
 
 glfc_chem_out <- cbind(ws_split, glfc_chem) # merge back
 
 glfc_chem_dat <- glfc_chem_out %>% 
-  select(-`Sample ID`) # remove old column
+  select(-`sample.id`) # remove old column
 
 glfc_chem_dat$sample.number <- str_remove_all(glfc_chem_dat$sample.number, "0")
 
@@ -373,8 +373,8 @@ glfcQ_DOC + scale_y_log10()
 
 setwd("/Volumes/MW/2020 Trent University/R/Thesis Data/MSc_data_analysis") # save it here!!!!!!
 
-glfc_dist_perc %>% 
-  saveRDS(file = "glfc_data_v1.rds")
+glfc_chem_dat %>% 
+  saveRDS(file = "glfc_data_v2.rds") ## Updated save for Oct samples (Oct. 7th)
 
 ## 6. TRIAL // JUNK CODE ----
 
