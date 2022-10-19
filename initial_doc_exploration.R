@@ -23,6 +23,8 @@ chem <- readRDS("glfc_chem_cleaned_v1.01.RDS")
 
 ws_char <- readRDS("watershed_characteristics_cleaned.RDS")
 
+watershed_table <- read_xlsx("/Volumes/MW/2020 Trent University/GIS/Excel Sheets/Watershed_table_v1.xlsx")
+
 ## 3. TIDY // PROCESS ----
 
 ### 3.01 - Subset to DOC
@@ -33,12 +35,14 @@ chem_out <- chem %>%
 doc <- chem_out %>% 
   subset(variable == "organic.carbon")
 
-### 3.02 - Connect DOC and catchment characteristics
+### 3.02 - Connect DOC and watershed table
 
-ws_doc <- left_join(ws_char, doc, by = c("site","catchment.id")) %>% 
+colnames(watershed_table)[1:2] <- c("site", "catchment.id")
+
+ws_doc <- left_join(watershed_table, doc, by = c("site","catchment.id")) %>%
   group_by(site) %>% 
-  mutate(mean.doc = mean(value.y),
-         doc.sd = sd(value.y))
+  mutate(mean.doc = mean(value),
+         doc.sd = sd(value))
 
 ## 4. PLOTTING ----
 
@@ -58,7 +62,7 @@ doc %>%
 
 ### 4.02 - DOC and catchment area
 
-area_doc <- ws_doc[ws_doc$variable.x == "area", ]
+area_doc <- ws_doc[ws_doc$variable.x == "Drainage Area (km2)", ]
 
 
 area_doc %>% 
@@ -130,7 +134,7 @@ open_w %>%
 
 ### 4.08 - DOC and wetland
 
-wetland <- ws_doc[ws_doc$variable.x == "wetland", ]
+wetland <- ws_doc[ws_doc$variable.x == "Wetland Cover (%)", ]
 
 wetland %>% 
   ggplot(aes(value.x, mean.doc)) +
@@ -152,7 +156,7 @@ bog %>%
 
 ### 4.10 - DOC and deciduous
 
-deciduous <- ws_doc[ws_doc$variable.x == "deciduous", ]
+deciduous <- ws_doc[ws_doc$variable.x == "Deciduous Forest (%)", ]
 
 deciduous %>% 
   ggplot(aes(value.x, mean.doc)) +
@@ -163,7 +167,7 @@ deciduous %>%
 
 ### 4.11 - DOC and conifer
 
-conifer <- ws_doc[ws_doc$variable.x == "coniferous", ]
+conifer <- ws_doc[ws_doc$variable.x == "Coniferous Forest (%)", ]
 
 conifer %>% 
   ggplot(aes(value.x, mean.doc)) +
@@ -174,7 +178,7 @@ conifer %>%
 
 ### 4.12 - DOC and mixed tree coverage
 
-mixed <- ws_doc[ws_doc$variable.x == "mixed", ]
+mixed <- ws_doc[ws_doc$variable.x == "Mixed Forest (%)", ]
 
 mixed %>% 
   ggplot(aes(value.x, mean.doc)) +
@@ -182,6 +186,17 @@ mixed %>%
   geom_smooth(method = "lm", formula = y~x, se = FALSE) +
   geom_errorbar(aes(ymin = mean.doc - doc.sd, ymax = mean.doc + doc.sd)) +
   labs(x = "Mixed tree cover (%)", y = "DOC (mg/L)")
+
+### 4.13 - DOC and sparse tree coverage
+
+sparse <- ws_doc[ws_doc$variable.x == "Sparse Forest (%)", ]
+
+sparse %>% 
+  ggplot(aes(value.x, mean.doc)) +
+  geom_point() +
+  geom_smooth(method = "lm", formula = y~x, se = FALSE) +
+  geom_errorbar(aes(ymin = mean.doc - doc.sd, ymax = mean.doc + doc.sd)) +
+  labs(x = "Sparse tree cover (%)", y = "DOC (mg/L)")
 
 ## 5. SAVING // EXPORTING ----
 

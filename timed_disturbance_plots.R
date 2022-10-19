@@ -35,7 +35,8 @@ doc <- water_chem %>%
 
 doc_means <- doc %>% 
   group_by(catchment) %>% 
-  summarise(mean.doc = mean(value))
+  mutate(mean.doc = mean(value),
+         doc.sd = sd(value))
 
 ### Change column name for merge
 
@@ -52,20 +53,24 @@ ws_merge <- left_join(watersheds, doc_means, by = "catchment")
 ws_merge[ws_merge == 0] <- NA
 
 ws_merge %>% 
-  ggplot(aes(`20-year abiotic disturbance (%)`, mean.doc)) +
+  ggplot(aes(`15-year wildfire disturbance (%)`, mean.doc)) +
   geom_point() +
   geom_smooth(method = "lm", formula = y~x, se = FALSE, colour = "black") +
-  labs(x = "20-year abiotic disturbance(%)", y = "DOC (mg/L)")
+  geom_errorbar(aes(ymin = mean.doc - doc.sd, ymax = mean.doc + doc.sd), width = 0) +
+  labs(x = "15-year wildfire disturbance (%)", y = "DOC (mg/L)")
+
+rm(ins_20plot)
+
+
+## 5. SAVING // EXPORTING ----
+
+## 6. TRIAL // JUNK CODE ----
 
 expl_plots <- function(x, y) {
-  ggplot(ws_merge[which(df$prop>0), aes(x = .data[[x]], y = .data[[y]])) +
+  ggplot(ws_merge, aes(x = .data[[x]], y = .data[[y]])) +
     geom_point() +
     geom_smooth(method = "lm", formula = y~x, se = FALSE, colour = "black")
 }
 
 expl_plots(x = "5-year Harvest Disturbance (%)", y = "mean.doc")
-
-## 5. SAVING // EXPORTING ----
-
-## 6. TRIAL // JUNK CODE ----
 

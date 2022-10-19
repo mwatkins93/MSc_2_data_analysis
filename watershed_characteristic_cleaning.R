@@ -9,6 +9,8 @@
 
 ## 0. NOTES ----
 
+### 0.1 - Brought in the updated master watershed table to make the RDS file for future graph production
+
 ## 1. PREPARE ----
 
 rm(list=ls())
@@ -19,14 +21,23 @@ library(readxl)
 
 ## 2. IMPORT ----
 
-ws_char <- read_xlsx("/Volumes/MW/2020 Trent University/GIS/Excel Sheets/watershed_characteristics_v1.00.xlsx")
+ws_char <- read_xlsx("/Volumes/MW/2020 Trent University/GIS/Excel Sheets/Watershed_table_v1.xlsx")
 
 ## 3. TIDY // PROCESS ----
 
-ws_char_out <- ws_char %>% 
-  pivot_longer(cols = 3:13,
+### Only numeric landscape variables
+
+ws_char_v1 <- ws_char %>% 
+  select(-`Discharge Quality`, -`Stage Quality`, -`DBP-FP Sampling`, -Group)
+
+ws_char_out <- ws_char_v1 %>% 
+  pivot_longer(cols = 3:29,
                names_to = "variable",
                values_to = "value")
+
+### Change column names
+
+colnames(ws_char_out)[1:2] <- c("site", "catchment.id")
 
 ## 4. PLOTTING ----
 
