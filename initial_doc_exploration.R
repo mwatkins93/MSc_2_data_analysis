@@ -23,7 +23,7 @@ chem <- readRDS("glfc_chem_cleaned_v1.01.RDS")
 
 ws_char <- readRDS("watershed_characteristics_cleaned.RDS")
 
-watershed_table <- read_xlsx("/Volumes/MW/2020 Trent University/GIS/Excel Sheets/Watershed_table_v1.xlsx")
+watershed_table <- read_xlsx("Watershed_table_v1.xlsx")
 
 ## 3. TIDY // PROCESS ----
 
@@ -134,10 +134,8 @@ open_w %>%
 
 ### 4.08 - DOC and wetland
 
-wetland <- ws_doc[ws_doc$variable.x == "Wetland Cover (%)", ]
-
-wetland %>% 
-  ggplot(aes(value.x, mean.doc)) +
+ws_doc %>%  
+  ggplot(aes(`Wetland Cover (%)`, mean.doc)) +
   geom_point() +
   geom_smooth(method = "lm", formula = y~x, se = FALSE) +
   geom_errorbar(aes(ymin = mean.doc - doc.sd, ymax = mean.doc + doc.sd)) +
