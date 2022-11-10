@@ -23,7 +23,7 @@ library(ggpubr)
 
 ### 1.01 ---- Import updated dataframe ----
 
-glfc_data <- readRDS("glfc_data_v1.RDS")
+glfc_data <- readRDS("glfc_chem_cleaned_v1.01.RDS")
 
 ### 1.02 - Set graphical parameters similar to UW ----
 
@@ -65,44 +65,50 @@ glfc_chem_dat$sample.number <- str_remove_all(glfc_chem_dat$sample.number, "0")
 
 ### 3.03 ---- Calculate SUVA based on Erik's correction: (SUVA = (a254/2.302585)/DOC) ----
 
-glfc_suva <- glfc_chem_dat %>% 
-  mutate(suva = (a254 / 2.302585) / `Organic Carbon`)
+glfc_data_wide <- glfc_datOut %>% 
+  pivot_wider(names_from = variable, values_from = value)
+
+glfc_suva <- glfc_data_wide %>% 
+  mutate(suva = (a254 / 2.302585) / organic.carbon)
+
+glfc_long <- glfc_suva %>% 
+  pivot_longer(cols = 7:51, names_to = "variable", values_to = "value")
 
 
 
 ### 3.04 ---- Integrate landscape variables and disturbance percentages ----
 
-glfc_ws_class <- glfc_suva %>% 
-  mutate(type = case_when(catchment == "WS 11" ~ "Mixed",
-                          catchment == "WS SSR" ~ "Mixed",
-                          catchment == "WS 47" ~ "Mixed",
-                          catchment == "WS 40" ~ "Mixed",
-                          catchment == "WS 43" ~ "Mixed",
-                          catchment == "WS 87" ~ "Mixed",
-                          catchment == "WS SBC" ~ "Harvest",
-                          catchment == "WS BL1" ~ "Harvest",
-                          catchment == "WS BL2" ~ "Harvest",
-                          catchment == "WS 82" ~ "Harvest",
-                          catchment == "WS 17" ~ "Insect",
-                          catchment == "WS 54" ~ "Insect",
-                          catchment == "WS 52" ~ "Insect",
-                          catchment == "WS 46" ~ "Insect",
-                          catchment == "WS 45" ~ "Insect",
-                          catchment == "WS 44" ~ "Insect",
-                          catchment == "WS 108" ~ "Control",
-                          catchment == "WS 104" ~ "Control",
-                          catchment == "WS 96" ~ "Control",
-                          catchment == "WS 93" ~ "Control",
-                          catchment == "WS 92" ~ "Control",
-                          catchment == "WS 84" ~ "Control",
-                          catchment == "WS 110" ~ "Control",
-                          catchment == "WS 77" ~ "Control",
-                          catchment == "WS 76" ~ "Control",
-                          catchment == "WS 75" ~ "Control",
-                          catchment == "WS 73" ~ "Control",
-                          catchment == "WS 67" ~ "Control",
-                          catchment == "WS 66" ~ "Control",
-                          catchment == "WS 36" ~ "Control")) # assign classes for easy plotting like UW data
+glfc_datOut <- glfc_data %>% 
+  mutate(type = case_when(site == "WS 11" ~ "Mixed",
+                          site == "WS SSR" ~ "Mixed",
+                          site == "WS 47" ~ "Mixed",
+                          site == "WS 40" ~ "Mixed",
+                          site == "WS 43" ~ "Mixed",
+                          site == "WS 87" ~ "Mixed",
+                          site == "WS SBC" ~ "Harvest",
+                          site == "WS BL1" ~ "Harvest",
+                          site == "WS BL2" ~ "Harvest",
+                          site == "WS 82" ~ "Harvest",
+                          site == "WS 17" ~ "Insect",
+                          site == "WS 54" ~ "Insect",
+                          site == "WS 52" ~ "Insect",
+                          site == "WS 46" ~ "Insect",
+                          site == "WS 45" ~ "Insect",
+                          site == "WS 44" ~ "Insect",
+                          site == "WS 108" ~ "Control",
+                          site == "WS 104" ~ "Control",
+                          site == "WS 96" ~ "Control",
+                          site == "WS 93" ~ "Control",
+                          site == "WS 92" ~ "Control",
+                          site == "WS 84" ~ "Control",
+                          site == "WS 110" ~ "Control",
+                          site == "WS 77" ~ "Control",
+                          site == "WS 76" ~ "Control",
+                          site == "WS 75" ~ "Control",
+                          site == "WS 73" ~ "Control",
+                          site == "WS 67" ~ "Control",
+                          site == "WS 66" ~ "Control",
+                          site == "WS 36" ~ "Control")) # assign classes for easy plotting like UW data
 
 glfc_dist_perc <- glfc_ws_class %>% 
   mutate(fire.disturbance = case_when(catchment == "WS 87" ~ 25.3,
@@ -216,6 +222,18 @@ doc_suva_lin <- glfc_data %>%
 
 doc_suva_lin + scale_colour_manual(values = c("#E69F00", "#56B4E9", "#009E73", 
                                    "#000000"))
+
+### 4.01.1 Temporal SUVA across all catchments
+
+
+p <- ggplot() +
+  geom_point(data = glfc_suva, aes(x = date, y = suva, colour = type)) + 
+  scale_colour_manual(values = c("Control" = "#E69F00", "Harvest" = "#56B4E9", "Insect" = "#009E73", "Mixed" = "#F0E442")) +
+  facet_wrap(~ catchment.id) +
+  theme_classic(base_size = 16) +
+  theme(axis.text.x=element_text(angle = 45, vjust = 0.5), legend.position = "none", plot.title = element_text(hjust = 0.5)) + labs(x = "", y = "SUVA (L/mg-C/m)")
+
+p
 
 ### 4.02 - DOC and Landscape characteristic plots
 
@@ -376,6 +394,11 @@ setwd("/Volumes/MW/2020 Trent University/R/Thesis Data/MSc_data_analysis") # sav
 glfc_chem_dat %>% 
   saveRDS(file = "glfc_data_v2.rds") ## Updated save for Oct samples (Oct. 7th)
 
+### 5.03 ---- Nov. 9th Updated save of the water chemistry file (added type and SUVA so I don't have to rerun line 75)
+
+glfc_long %>% 
+  saveRDS(file = "glfc_data_v4.rds")
+
 ## 6. TRIAL // JUNK CODE ----
 
 ws43_check <- glfc_data %>% 
@@ -406,11 +429,18 @@ doc_season
 
 #######
 
-p <- ggplot(data = glfc_doc, aes(x = `Sample Date`, y = `Organic Carbon`, group = sample.number, fill = type))
-p + geom_boxplot(outlier.shape = NA) + 
-  facet_wrap(~ type) +
-  scale_y_log10() + 
-  scale_fill_manual(values = c("#E69F00", "#56B4E9", "#009E73", "#F0E442")) +   
-  theme_classic(base_size = 16) +
-  theme(axis.text.x=element_text(angle = 45, vjust = 0.5), legend.position="none", plot.title = element_text(hjust = 0.5)) + labs(x = "", y = "DOC (ppm)")
+organC_sub <- glfc_datOut %>% 
+  filter(variable %in% "organic.carbon") %>% 
+  pivot_wider(names_from = variable, values_from = value)
 
+
+
+p <- ggplot() +
+  geom_point(data = organC_sub, aes(x = date, y = organic.carbon, colour = type)) + 
+  scale_colour_manual(values = c("Control" = "#E69F00", "Harvest" = "#56B4E9", "Insect" = "#009E73", "Mixed" = "#F0E442")) +
+  scale_y_log10() +
+  facet_wrap(~ catchment.id) +
+  theme_classic(base_size = 16) +
+  theme(axis.text.x=element_text(angle = 45, vjust = 0.5), legend.position = "none", plot.title = element_text(hjust = 0.5)) + labs(x = "", y = "DOC (mg/L)")
+
+p

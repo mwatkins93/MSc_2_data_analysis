@@ -12,6 +12,18 @@
 
 # Main purpose of this script is to explore the DOC and THM-FP concentrations between sites
 
+### 0.01 - Nov. 9th update: add type column with catchment types and re-save for future use
+
+uw_chem_dat <- uw_chem_wide %>% 
+  mutate(type = case_when(site == "WS 11" ~ "Mixed",
+                          site == "WS 87" ~ "Mixed",
+                          site == "WS SBC" ~ "Harvest",
+                          site == "WS 82" ~ "Harvest",
+                          site == "WS 17" ~ "Insect",
+                          site == "WS 52" ~ "Insect",
+                          site == "WS 66" ~ "Control",
+                          site == "WS 96" ~ "Control"))
+
 ## 1. Prepare
 ##---------------------------
 
@@ -40,6 +52,8 @@ ggpubr::show_point_shapes()
 # Bring in UW water chemistry data
 
 water_chem <- read_xlsx("/Volumes/MW/2020 Trent University/Data/UW-DBP-FP/DBP-FP_Report-BS-Fall_2021_v1.xlsx")
+
+uw_chem <- readRDS("uw_chem_cleaned_v1.02.RDS")
 
 ## 3. Tidy / Process
 ##---------------------------
@@ -381,6 +395,8 @@ annotate_figure(thm_landscape,
 
 ### 4.7 - Time series plot of response variables
 
+### 4.7.1 - DOC
+
 doc_season <- water_chem_v6 %>% 
   ggplot(aes(sample.number, `DOC [ppm]`, colour = type, shape = type)) +
   geom_point(size = 3) +
@@ -390,6 +406,8 @@ doc_season <- water_chem_v6 %>%
   theme_classic(base_size = 16) +
   theme(axis.text.x=element_text(angle = 45, vjust = 0.5), legend.title = element_blank(), plot.title = element_text(hjust = 0.5)) + 
   labs(x = "", y = "DOC (ppm)")
+
+### 4.7.2 - SUVA
 
 suva_season <- water_chem_v6 %>% 
   ggplot(aes(sample.number, SUVA, fill = type)) +
@@ -404,8 +422,13 @@ suva_season <- water_chem_v6 %>%
 
 suva_season
 
-thm_season <- water_chem_v6 %>% 
-  ggplot(aes(sample.number, `THMsFP [μg/L]`, fill = type)) +
+### 4.7.3 - THM-FP
+
+uw_chem_wide <- uw_chem %>% 
+  pivot_wider(names_from = "variable", values_from = "value")
+
+thm_season <- uw_chem_wide %>% 
+  ggplot(aes(date, `THMsFP [μg/L]`, fill = type)) +
   geom_boxplot(outlier.shape = NA) +
   scale_fill_manual(values = c("#E69F00", "#56B4E9", "#009E73", 
                                "#F0E442")) +
@@ -415,6 +438,17 @@ thm_season <- water_chem_v6 %>%
   theme(axis.text.x=element_text(angle = 45, vjust = 0.5), legend.position = "none", plot.title = element_text(hjust = 0.5)) + 
   labs(x = "Sample number", y = "THM-FP (μg/L)") +
   facet_wrap(~ type)
+
+p <- ggplot() +
+  geom_point(data = uw_chem_dat, aes(x = date, y = `thm-fp`, colour = type)) + 
+  scale_colour_manual(values = c("Control" = "#E69F00", "Harvest" = "#56B4E9", "Insect" = "#009E73", "Mixed" = "#F0E442")) +
+  facet_wrap(~ catchment.id) +
+  theme_classic(base_size = 16) +
+  theme(axis.text.x=element_text(angle = 45, vjust = 0.5), legend.position = "none", plot.title = element_text(hjust = 0.5)) + labs(x = "", y = "THM-FP (μg/L)")
+
+p
+
+#####
 
 thm_season
 
@@ -442,6 +476,11 @@ response_v_season
 
 ## 5. Saving / Exporting
 ##---------------------------
+
+### 5.01 - Resave the updated file (Nov. 9th)
+
+uw_chem_dat %>% 
+  saveRDS(file = "uw_chem_cleaned_v1.03.rds")
 
 ## 6. Notes / Junk Code
 ##---------------------------
