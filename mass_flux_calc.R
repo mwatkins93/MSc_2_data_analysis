@@ -52,13 +52,13 @@ glfc_orgC <- ws_merge %>%
 
 ### 3.02 - Multiply concentration by daily discharge and divide by catchment area to obtain mass flux per unit time per unit area (mg/s/km2)
 
-mass_flux <- glfc_orgC %>% 
+inst_mass_flux <- glfc_orgC %>% 
   mutate(mass.time = daily.discharge * organic.carbon) %>% 
   mutate(mass.time.area = mass.time / drainage.area)
 
 ### 3.03 - Only keep the sites with "good" Q status and not partial/poor that are left (SBC / WS 93)
 
-goodQ_mf <- mass_flux %>% 
+goodQ_mf <- inst_mass_flux %>% 
   filter(catchment != "WS SBC" & catchment != "WS 93")
 
 ### 3.04 - Calculate mean mass flux across entire field season
@@ -94,6 +94,11 @@ mean_flux_plot <- flux_means %>%
 mean_flux_plot
 
 ## 5. SAVING // EXPORTING ----
+
+### 5.01 - Save the cleaned mass flux calculation dataframe
+
+goodQ_mf %>% 
+  saveRDS(file = "mass_flux_estimates_cleaned_v1.00.rds")
 
 ## 6. TRIAL // JUNK CODE ----
 

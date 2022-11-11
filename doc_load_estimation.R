@@ -35,52 +35,47 @@ wtr_chem <- readRDS("glfc_chem_cleaned_v1.01.rds")
 
 ### 3.02 - Test merge process for one watershed (WS 96) ----
 
-ws96_dailyQ <- readRDS("ws96_dailyQ.rds")
+ws40_dailyQ <- readRDS("ws40_dailyQ.rds")
 
-ws96_chem <- wtr_chem %>% 
+ws40_chem <- wtr_chem %>% 
   select(-glfc.id) %>%
-  filter(site %in% "WS 96" & variable %in% "organic.carbon") %>% 
+  filter(site %in% "WS 40" & variable %in% "organic.carbon") %>% 
   separate(date, c("year", "month", "day"), sep = "(\\-| )") %>% 
   select(-year)
 
-ws96_out <- left_join(ws96_dailyQ, ws96_chem) # This process works
+ws40_out <- left_join(ws40_dailyQ, ws40_chem) # This process works
   
-ws96_timeframe <- ws96_out[-c(1, 142, 143, 144, 145), ]
+ws40_timeframe <- ws40_out[-c(1, 2, 3, 4, 5, 146, 147), ]
   
 
 ### 3.03 - Load range mass flux computation (WS 96) ----
 
 #### 3.03.1 - Check range of WS 96's DOC ----
 
-range(ws96_out$value, na.rm = TRUE) # 3.176 - 6.341
+range(ws40_out$value, na.rm = TRUE)
 
 #### 3.03.2 - DOC flux range calculation: high (6.341) and low (3.176) ----
 
-ws96_load_range <- ws96_timeframe %>% 
-  mutate(top.mass.flux = ((dailyQ * 6.341) / 106.8),
-         btm.mass.flux = ((dailyQ * 3.176) / 106.8)) # Now in mg/s/km^2
+ws40_load_range <- ws40_timeframe %>% 
+  mutate(top.mass.flux = ((dailyQ * 11.646) / 25.5),
+         btm.mass.flux = ((dailyQ * 8.427) / 25.5)) # Now in mg/s/km^2
 
-12,096,000
+12,096,000 # seconds in the corrected timeframe
 
 ### 3.03.3 - Summarise total load per study period
 
-ws96_max <- sum(ws96_load_range$top.mass.flux)
-ws96_tmax <- ws96_max * 12096000
+ws40_max <- sum(ws40_load_range$top.mass.flux) * 12096000 / 1000000
 
-ws96_min <- sum(ws96_load_range$btm.mass.flux) * 12096000
+ws40_min <- sum(ws40_load_range$btm.mass.flux) * 12096000 / 1000000
 
 ### 3.04 - Linear interpolation method (WS 96) ----
 
 ### 3.05 - Regression model (WS 96) ----
 
-lm_ws96 <- lm(value ~ dailyQ, data = ws96_out)
-summary(lm_ws96)
-
-## or fit loess
-scatter.smooth(ws96_out$dailyQ, ws96_out$value, span = 2, degree = 2)
-
 ######### Repeatable process for the other 14 watersheds #############
 ######################################################################
+
+### 3.06 - Load range method (max and min)
 
 ws54_dailyQ <- readRDS("ws54_dailyQ.rds")
 
@@ -100,13 +95,16 @@ ws54_load_range <- ws54_timeframe %>%
   mutate(top.mass.flux = ((dailyQ * 4.48) / 46.02),
          btm.mass.flux = ((dailyQ * 3.40) / 46.02)) # Now in mg/s/km^2
 
-### Summarise total load per study period
+ws54_max <- sum(ws54_load_range$top.mass.flux) * 12096000 / 1000000 # sums up max load
 
-ws54_max <- sum(ws54_load_range$top.mass.flux) * 12096000 / 1000000
+ws54_min <- sum(ws54_load_range$btm.mass.flux) * 12096000 / 1000000 # sums up min load
 
-ws54_min <- sum(ws54_load_range$btm.mass.flux) * 12096000 / 1000000
+### 3.07 linear interpolation 
 
+ws40_inst_flux <- ws40_timeframe %>% 
+  mutate(inst.mass.flux = ((dailyQ * value) / 25.5))
 
+ws40_inst_flux$inst.mass.flux <- na.approx(ws40_inst_flux$inst.mass.flux, na.rm = FALSE)
 
 
 
