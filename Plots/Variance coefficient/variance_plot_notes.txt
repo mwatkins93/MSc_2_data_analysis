@@ -1,0 +1,22 @@
+coefficient of variance notes
+#############################
+
+1. small ratio: relative variability of C is a lot less than the relative variability of Q for that catchment
+
+2. large ratio: relative variability of C is much greater than the relative variability of Q for that catchment. Possibly due to variability in the supply of DOC to the stream over the course of the monitoring period.
+
+catchments with a ratio < 0.2
+#############################
+
+C2; C4; H3; M5
+
+catchments with a value between 0.2 and 0.6
+###########################################
+
+C9; C12; C14; H2; I2; I3; I4; M3
+
+catchments with a value > 0.6
+#############################
+
+C8; M4
+

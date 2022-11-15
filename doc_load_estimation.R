@@ -35,47 +35,49 @@ wtr_chem <- readRDS("glfc_chem_cleaned_v1.01.rds")
 
 ### 3.02 - Test merge process for one watershed (WS 96) ----
 
-ws40_dailyQ <- readRDS("ws40_dailyQ.rds")
+ws108_dailyQ <- readRDS("ws108_dailyQ.rds")
 
-ws40_chem <- wtr_chem %>% 
+ws108_chem <- wtr_chem %>% 
   select(-glfc.id) %>%
-  filter(site %in% "WS 40" & variable %in% "organic.carbon") %>% 
+  filter(site %in% "WS 108" & variable %in% "organic.carbon") %>% 
   separate(date, c("year", "month", "day"), sep = "(\\-| )") %>% 
   select(-year)
 
-ws40_out <- left_join(ws40_dailyQ, ws40_chem) # This process works
+ws108_out <- left_join(ws108_dailyQ, ws108_chem) # This process works
   
-ws40_timeframe <- ws40_out[-c(1, 2, 3, 4, 5, 146, 147), ]
-  
+ws108_timeframe <- ws108_out[-1, ] # remove the rows outside of the set timeframe
 
-### 3.03 - Load range mass flux computation (WS 96) ----
+### 3.03 - Load range mass flux computation ----
 
-#### 3.03.1 - Check range of WS 96's DOC ----
+#### 3.03.1 - Check range of DOC ----
 
-range(ws40_out$value, na.rm = TRUE)
+range(ws108_out$value, na.rm = TRUE)
 
 #### 3.03.2 - DOC flux range calculation: high (6.341) and low (3.176) ----
 
-ws40_load_range <- ws40_timeframe %>% 
-  mutate(top.mass.flux = ((dailyQ * 11.646) / 25.5),
-         btm.mass.flux = ((dailyQ * 8.427) / 25.5)) # Now in mg/s/km^2
+ws108_load_range <- ws108_timeframe %>% 
+  mutate(top.mass.flux = ((dailyQ * 4.722) / 30.6),
+         btm.mass.flux = ((dailyQ * 2.407) / 30.6)) # Now in mg/s/km^2
 
-12,096,000 # seconds in the corrected timeframe
+12182400 # seconds in the corrected timeframe
 
 ### 3.03.3 - Summarise total load per study period
 
-ws40_max <- sum(ws40_load_range$top.mass.flux) * 12096000 / 1000000
+### remove the days past Oct. 23rd for the remaining sites first
 
-ws40_min <- sum(ws40_load_range$btm.mass.flux) * 12096000 / 1000000
+ws108_load_range <- ws108_load_range[-c(130, 131, 132), ]
 
-### 3.04 - Linear interpolation method (WS 96) ----
+ws108_max <- sum(ws108_load_range$top.mass.flux) * 12182400 / 1000000
 
-### 3.05 - Regression model (WS 96) ----
+ws108_min <- sum(ws108_load_range$btm.mass.flux) * 12182400 / 1000000
 
-######### Repeatable process for the other 14 watersheds #############
+ws84_load_range %>% 
+  saveRDS(file = "ws84_mass_flux.rds") # save these here for now
+
+######### Repeatable process for the other watersheds ################
 ######################################################################
 
-### 3.06 - Load range method (max and min)
+### 3.07 linear interpolation 
 
 ws54_dailyQ <- readRDS("ws54_dailyQ.rds")
 
@@ -87,38 +89,35 @@ ws54_chem <- wtr_chem %>%
 
 ws54_out <- left_join(ws54_dailyQ, ws54_chem) # This process works
 
-ws54_timeframe <- ws54_out[-c(1, 2, 3, 4, 5, 6, 7, 8, 149), ] # Remove days outside timeframe
+ws54_timeframe <- ws54_out[-c(1, 2, 3, 4, 5, 6, 7, 8), ] # remove the rows outside of the set timeframe
 
-range(ws54_chem$value, na.rm = TRUE) # 17.28 - 4.342
+ws54_timeframe$value <- na.approx(ws54_timeframe$value, na.rm = FALSE) # linearly interpolate the concentrations between sample days
 
-ws54_load_range <- ws54_timeframe %>% 
-  mutate(top.mass.flux = ((dailyQ * 4.48) / 46.02),
-         btm.mass.flux = ((dailyQ * 3.40) / 46.02)) # Now in mg/s/km^2
+ws54_timeframe$value[1:7] <- 3.873000  # fill NAs to the concentration of sample day 1 for the days prior to it
 
-ws54_max <- sum(ws54_load_range$top.mass.flux) * 12096000 / 1000000 # sums up max load
+ws54_inst_flux <- ws54_timeframe %>% 
+  mutate(inst.mass.flux = ((dailyQ * value) / 46)) # calculate instantaneous mass fluxes in  # mg/s/km^2
 
-ws54_min <- sum(ws54_load_range$btm.mass.flux) * 12096000 / 1000000 # sums up min load
+ws52_inst_flux <- ws52_inst_flux[-142, ] # remove days past Oct. 23rd now that flux is calculated
 
-### 3.07 linear interpolation 
-
-ws40_inst_flux <- ws40_timeframe %>% 
-  mutate(inst.mass.flux = ((dailyQ * value) / 25.5))
-
-ws40_inst_flux$inst.mass.flux <- na.approx(ws40_inst_flux$inst.mass.flux, na.rm = FALSE)
-
-
+ws54_int_load_sum <- (sum(ws54_inst_flux$inst.mass.flux) * 12182400) / 1000000
 
 ## 4. PLOTTING ----
 
 ### 4.01 Look at Q versus DOC for WS 96
 
-ws96_out %>% 
-  ggplot(aes(x = dailyQ, y = value)) +
-  geom_point()
+# ws96_out %>% ggplot(aes(x = dailyQ, y = value)) + geom_point()
 
 ## 5. SAVING // EXPORTING ----
 
+ws54_inst_flux %>% 
+  saveRDS(file = "ws54_mass_flux_int.rds")
+
 ## 6. TRIAL // JUNK CODE ----
+
+### see what the mass flux rds looks like
+
+
 
 ### 6.01 Figure out timeline between WS 108 and WS 54
 
