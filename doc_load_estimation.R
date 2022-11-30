@@ -149,39 +149,39 @@ ws66_out %>%
 #colnames(mass_loads)[4, 6, 8] <- c("maximum", "minimum", "linear interpolation")
 
 ml_test <- mass_loads %>%
-  select(-`linear regression (kg/season)`, -`linear regression (g/day)`, -`linear interpolation (kg/season)`, -`maximum (kg/season)`, -`minimum (kg/season)`) %>%  # remove unfinished regression and kg/season columns
-  pivot_longer(cols = 3:5,
+  select(-`linear regression (kg/season)`, -`linear interpolation (kg/season)`, -`maximum (kg/season)`, -`minimum (kg/season)`) %>%  # remove unfinished regression and kg/season columns
+  pivot_longer(cols = 3:6,
              names_to = "calculation",
              values_to = "doc") # pivot to allow for multiple wide columns to be plotted
 
-ml_test$calculation <- factor(ml_test$calculation, levels = c("maximum (g/day)", "linear interpolation (g/day)", "minimum (g/day)")) # reorder factors for better legend order
+ml_test$calculation <- factor(ml_test$calculation, levels = c("maximum (g/day)", "linear regression (g/day)", "linear interpolation (g/day)", "minimum (g/day)")) # reorder factors for better legend order
 
 ml_test %>% 
   ggplot(aes(x = catchment.id, y = doc)) +
   geom_point(aes(colour = calculation, shape = calculation), size = 2) +
   geom_line(aes(group = catchment.id), alpha = .5) +
   theme(axis.text.x=element_text(angle = 45, vjust = 0.5), legend.title = element_blank(), plot.title = element_text(hjust = 0.5)) + labs(x = "", y = expression(paste("Seasonal DOC mass load " (g/day)))) +
-  scale_color_manual(labels = c("Maximum", "Linear interpolation", "Minimum"), values = c("#56B4E9", "#009E73", "#E69F00")) +
-  scale_shape_manual(labels = c("Maximum", "Linear interpolation", "Minimum"), values = c(17, 16, 15)) +
+  scale_color_manual(labels = c("Maximum", "Linear regression", "Linear interpolation", "Minimum"), values = c("#56B4E9", "#CC79A7", "#009E73", "#E69F00")) +
+  scale_shape_manual(labels = c("Maximum", "Linear regression", "Linear interpolation", "Minimum"), values = c(17, 18, 16, 15)) +
   scale_x_discrete(limits = c("C2", "C4", "C8", "C9", "C12", "C14", "H2", "H3", "I2", "I3", "I4", "M3", "M4", "M5", "M6"))
 
 ### 4.02.2 Same graph but kilograms per entire field season
 
 ml_kg_szn <- mass_loads %>%
-  select(-`linear regression (kg/season)`, -`linear regression (g/day)`, -`linear interpolation (g/day)`, -`maximum (g/day)`, -`minimum (g/day)`) %>%  # remove unfinished regression and kg/season columns
-  pivot_longer(cols = 3:5,
+  select(-`linear regression (g/day)`, -`linear interpolation (g/day)`, -`maximum (g/day)`, -`minimum (g/day)`) %>%  # remove unfinished regression and kg/season columns
+  pivot_longer(cols = 3:6,
                names_to = "calculation",
                values_to = "doc") # pivot to allow for multiple wide columns to be plotted
 
-ml_kg_szn$calculation <- factor(ml_kg_szn$calculation, levels = c("maximum (kg/season)", "linear interpolation (kg/season)", "minimum (kg/season)")) # reorder factors for better legend order
+ml_kg_szn$calculation <- factor(ml_kg_szn$calculation, levels = c("maximum (kg/season)", "linear regression (kg/season)", "linear interpolation (kg/season)", "minimum (kg/season)")) # reorder factors for better legend order
 
 ml_kg_szn %>% 
   ggplot(aes(x = catchment.id, y = doc)) +
   geom_point(aes(colour = calculation, shape = calculation), size = 2) +
   geom_line(aes(group = catchment.id), alpha = .5) +
   theme(axis.text.x=element_text(angle = 45, vjust = 0.5), legend.title = element_blank(), plot.title = element_text(hjust = 0.5)) + labs(x = "", y = expression(paste("Seasonal DOC mass load " (kg/season)))) +
-  scale_color_manual(labels = c("Maximum", "Linear interpolation", "Minimum"), values = c("#56B4E9", "#009E73", "#E69F00")) +
-  scale_shape_manual(labels = c("Maximum", "Linear interpolation", "Minimum"), values = c(17, 16, 15)) +
+  scale_color_manual(labels = c("Maximum", "Linear regression", "Linear interpolation", "Minimum"), values = c("#56B4E9", "#CC79A7", "#009E73", "#E69F00")) +
+  scale_shape_manual(labels = c("Maximum", "Linear regression", "Linear interpolation", "Minimum"), values = c(17, 18, 16, 15)) +
   scale_x_discrete(limits = c("C2", "C4", "C8", "C9", "C12", "C14", "H2", "H3", "I2", "I3", "I4", "M3", "M4", "M5", "M6"))
 
 ## 5. SAVING // EXPORTING ----
