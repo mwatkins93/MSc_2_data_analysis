@@ -35,23 +35,21 @@ wtr_chem <- readRDS("glfc_chem_cleaned_v1.01.rds")
 
 mass_loads <- read_xlsx("/Volumes/MW/2020 Trent University/R/Thesis Data/MSc_data_analysis/doc_load_estimates.xlsx")
 
-
 ## 3. TIDY // PROCESS ----
 
 ### 3.01 - Test merge process for one watershed ----
 
+ws84_dailyQ <- readRDS("ws84_dailyQ.rds")
 
-ws40_dailyQ <- readRDS("ws40_dailyQ.rds")
-
-ws40_chem <- wtr_chem %>% 
+ws84_chem <- wtr_chem %>% 
   select(-glfc.id) %>%
-  filter(site %in% "WS 40" & variable %in% "organic.carbon") %>% 
+  filter(site %in% "WS 84" & variable %in% "organic.carbon") %>% 
   separate(date, c("year", "month", "day"), sep = "(\\-| )") %>% 
   select(-year)
 
-ws40_out <- left_join(ws40_dailyQ, ws40_chem) # This process works
+ws84_out <- left_join(ws84_dailyQ, ws84_chem) # This process works
   
-ws40_timeframe <- ws40_out[-c(1, 2, 3, 4, 5), ] # remove the rows outside of the set timeframe
+ws84_timeframe <- ws84_out[-c(1, 2), ] # remove the rows outside of the set timeframe
 
 ### 3.03 - Load range mass flux computation ----
 
@@ -96,13 +94,53 @@ ws87_inst_flux <- ws87_inst_flux[-c(142, 143), ] # remove days past Oct. 23rd no
 
 ws87_int_load_sum <- (sum(ws87_inst_flux$inst.mass.flux) * 12182400) / 1000000
 
+
+### 3.05 - linear regression ----
+
+ws110_dailyQ <- readRDS("ws110_dailyQ.rds")
+
+ws110_chem <- wtr_chem %>% 
+  select(-glfc.id) %>%
+  filter(site %in% "WS 110" & variable %in% "organic.carbon") %>% 
+  separate(date, c("year", "month", "day"), sep = "(\\-| )") %>% 
+  select(-year)
+
+ws110_out <- left_join(ws110_dailyQ, ws110_chem) # This process works
+
+ws110_timeframe <- ws110_out[-c(1, 2), ] # remove the rows outside of the set timeframe
+
+#### ----------
+
+ws110_cQ <- lm(value ~ dailyQ, data = ws110_timeframe)
+
+summary(ws110_cQ)
+
+#### Manually predict concentrations based on regression
+
+ws110_timeframe$reg.predict <- ws110_cQ$coef[1] + ws110_cQ$coef[2]*ws110_timeframe$dailyQ
+
+ws110_final_timeline <- ws110_timeframe[-c(142, 143), ]
+
+ws110_reg_mf <- ws110_final_timeline %>% 
+  mutate(reg.mass.flux = ((dailyQ * reg.predict) / 15.6))
+
+ws110_reg_load_sum <- (sum(ws110_reg_mf$reg.mass.flux) * 12182400) / 1000000
+
+
+
+
+
+
+
+
 ## 4. PLOTTING ----
 
 ### 4.01 - Look at Q versus DOC for WS 96 ----
 
-ws96_out %>% 
+ws66_out %>% 
   ggplot(aes(x = dailyQ, y = value)) + 
-  geom_point()
+  geom_point() +
+  geom_smooth(method="lm", col="black", se = FALSE)
 
 ### 4.02 - Look at preliminary seasonal DOC loads in grams per day ----
 
