@@ -11,6 +11,8 @@
 
 ### 0.1 - Fri. Nov. 4th update: rechecking this process and updating the code with the revised glfc water chemistry dataset (glfc_data_v2.rds)
 
+### 0.2 - Tues. Dec. 6th update: rechecked the math, instantaneous flux is calculated correctly. In addition, I checked the daily discharge values with the values from the xx_dailyQ.RDS files - these are correct too.
+
 
 ## 1. PREPARE ----
 
@@ -112,7 +114,6 @@ insect_mf <- mean_mf%>%
 flux_means <- mean_mf %>%
   group_by(catchment, group) %>% 
   summarise(flux.means = mean(mass.time.area))
-    
   
 
 

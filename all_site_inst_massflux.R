@@ -60,7 +60,8 @@ cQ_inst_flux %>%
   theme_bw(base_size = 16) +
   theme(axis.text.x=element_text(angle = 45, vjust = 0.5), legend.title = element_blank()) +
   facet_wrap(~ catchment.id) +
-  labs(x = "", y = expression(paste("Instantaneous mass flux " (mg/day/km^2))))
+  scale_y_log10() +
+  labs(x = "", y = expression(paste("Instantaneous mass flux " (mg/s/km^2))))
 
 
  ## 5. SAVING // EXPORTING ----
