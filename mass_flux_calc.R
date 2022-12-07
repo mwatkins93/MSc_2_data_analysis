@@ -34,7 +34,7 @@ colours <- scale_fill_manual(values = c("#E69F00", "#56B4E9", "#009E73",
 
 glfc_data <- readRDS("/Volumes/MW/2020 Trent University/Data/GLFC Water Chemistry/glfc_data_v2.rds")
 
-watersheds <- read_xlsx("Watershed_table_v1.xlsx")
+watersheds <- read_xlsx("/Volumes/MW/2020 Trent University/R/Thesis Data/MSc_data_analysis/Watershed_table_v1.xlsx")
 
 ## 3. TIDY // PROCESS ----
 
