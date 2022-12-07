@@ -27,104 +27,104 @@ library(ggpubr)
 
 ### 2.01 - Bring in streamflow, dailyQ and water chemistry ----
 
+rm(list = ls())
+
 strflow <- readRDS("streamflow_final_v1.02.rds")
 
 wtr_chem <- readRDS("glfc_chem_cleaned_v1.01.rds")
 
 ### 2.02 - bring in mass load spreadsheet
 
-mass_loads <- read_xlsx("/Volumes/MW/2020 Trent University/R/Thesis Data/MSc_data_analysis/doc_load_estimates.xlsx")
+mass_loads <- read_xlsx("doc_load_estimates.xlsx")
 
 ## 3. TIDY // PROCESS ----
 
 ### 3.01 - Test merge process for one watershed ----
 
-ws84_dailyQ <- readRDS("ws84_dailyQ.rds")
+setwd("/Volumes/MW/2020 Trent University/R/Thesis Data/Water_level_correlation/Discharge Estimates")
 
-ws84_chem <- wtr_chem %>% 
+ws96_dailyQ <- readRDS("ws96_dailyQ.rds")
+
+ws96_chem <- wtr_chem %>% 
   select(-glfc.id) %>%
-  filter(site %in% "WS 84" & variable %in% "organic.carbon") %>% 
+  filter(site %in% "WS 96" & variable %in% "organic.carbon") %>% 
   separate(date, c("year", "month", "day"), sep = "(\\-| )") %>% 
   select(-year)
 
-ws84_out <- left_join(ws84_dailyQ, ws84_chem) # This process works
-  
-ws84_timeframe <- ws84_out[-c(1, 2), ] # remove the rows outside of the set timeframe
+ws96_out <- left_join(ws96_dailyQ, ws96_chem) %>% 
+  mutate(Q.litres = dailyQ * 1000) # This process works and also converts Q to L/s so I can obtain mass flux in mg/s
 
 ### 3.03 - Load range mass flux computation ----
 
 #### 3.03.1 - Check range of DOC ----
 
-range(ws40_out$value, na.rm = TRUE)
+range(ws96_out$value, na.rm = TRUE)
 
-#### 3.03.2 - DOC flux range calculation: high (6.341) and low (3.176) ----
+#### 3.03.2 - DOC flux range calculation: high and low ----
 
-ws40_load_range <- ws40_timeframe %>% 
-  mutate(top.mass.flux = ((dailyQ * 11.646) / 25.5),
-         btm.mass.flux = ((dailyQ * 8.427) / 25.5)) # Now in mg/s/km^2
+ws96_loadrange <- ws96_out %>% # making sure EVERY conversion is correct
+  mutate(top.mass.flux = (Q.litres * 6.341),
+         btm.mass.flux = (Q.litres * 3.176),
+         top.mg.min = (top.mass.flux * 60),
+         btm.mg.min = (btm.mass.flux * 60),
+         top.mg.hour = (top.mg.min * 60),
+         btm.mg.hour = (btm.mg.min * 60),
+         top.mg.day = (top.mg.hour * 24),
+         btm.mg.day = (btm.mg.hour * 24))
 
-# 12182400 seconds in the corrected timeframe
+ws96_timeframe <- ws96_loadrange[-c(1, 143, 144, 145), ] # remove the rows outside of the set timeframe
 
-### 3.03.3 - Summarise total load per study period
+ws96.top.mg.szn <- sum(ws96_loadrange$top.mg.day) # sum the max amount for the study period
+ws96.btm.mg.szn <- sum(ws96_loadrange$btm.mg.day) # sum the min amount for the study period
 
-### remove the days past Oct. 23rd for the remaining sites first
+ws96.top.mgC.per.km2.szn <- ws96.top.mg.szn / 106.8 # standardise for catchment area
+ws96.btm.mgC.per.km2.szn <- ws96.btm.mg.szn / 106.8
+  
+ws96.top.kgC.per.km2.szn <- ws96.top.mgC.per.km2.szn / 1000000 # convert to kg C / km2 * szn
+ws96.btm.kgC.per.km2.szn <- ws96.btm.mgC.per.km2.szn / 1000000
 
-ws40_load_range <- ws40_load_range[-142, ]
-
-ws40_max <- sum(ws40_load_range$top.mass.flux) * 12182400 / 1000000 # now in kg / km2 over the study period
-
-ws40_min <- sum(ws40_load_range$btm.mass.flux) * 12182400 / 1000000
-
-ws40_load_range %>% 
-  saveRDS(file = "ws40_mass_flux.rds") # save these here for now
+ws96_timeframe %>% 
+  saveRDS(file = "ws96_mf_maxmin.rds") # save these here for now
 
 ######### Repeatable process for the other watersheds ################
 ######################################################################
 
 ### 3.04 - linear interpolation ---- 
 
-ws87_timeframe$value <- na.approx(ws87_timeframe$value, na.rm = FALSE) # linearly interpolate the concentrations between sample days
+ws96_loadrange$value <- na.approx(ws96_loadrange$value, na.rm = FALSE) # linearly interpolate the concentrations between sample days
 
-ws87_timeframe$value[1:10] <- 9.013000  # fill NAs to the concentration of sample day 1 for the days prior to it
+ws96_loadrange$value[1:12] <- 4.042  # fill NAs to the concentration of sample day 1 for the days prior to it
 
-ws87_inst_flux <- ws87_timeframe %>% 
-  mutate(inst.mass.flux = ((dailyQ * value) / 2.1)) # calculate instantaneous mass fluxes in  # mg/s/km^2
+ws96_interpolated <- ws96_loadrange %>% 
+  mutate(interpolated.mass.flux = (Q.litres * value)) # calculate instantaneous mass fluxes in mg/s
 
-ws87_inst_flux <- ws87_inst_flux[-c(142, 143), ] # remove days past Oct. 23rd now that flux is calculated
+ws96_int_timeframe <- ws96_interpolated[-c(1, 143, 144, 145), ] %>% 
+  mutate(interpolated.mg.day = (interpolated.mass.flux * 86400)) # remove days past Oct. 23rd now that flux is calculated and compute mg per day
 
-ws87_int_load_sum <- (sum(ws87_inst_flux$inst.mass.flux) * 12182400) / 1000000
+ws96.int.mgC.per.km2.szn <- sum(ws96_int_timeframe$interpolated.mg.day) / 106.8
+
+ws96.int.kgC.per.km2.szn <- ws96.int.mgC.per.km2.szn / 1000000
 
 
 ### 3.05 - linear regression ----
 
-ws110_dailyQ <- readRDS("ws110_dailyQ.rds")
+ws96_cQ <- lm(value ~ dailyQ, data = ws96_out) # make a model from the 6 manual Q and concurrent concentrations
 
-ws110_chem <- wtr_chem %>% 
-  select(-glfc.id) %>%
-  filter(site %in% "WS 110" & variable %in% "organic.carbon") %>% 
-  separate(date, c("year", "month", "day"), sep = "(\\-| )") %>% 
-  select(-year)
-
-ws110_out <- left_join(ws110_dailyQ, ws110_chem) # This process works
-
-ws110_timeframe <- ws110_out[-c(1, 2), ] # remove the rows outside of the set timeframe
-
-#### ----------
-
-ws110_cQ <- lm(value ~ dailyQ, data = ws110_timeframe)
-
-summary(ws110_cQ)
+summary(ws96_cQ)
 
 #### Manually predict concentrations based on regression
 
-ws110_timeframe$reg.predict <- ws110_cQ$coef[1] + ws110_cQ$coef[2]*ws110_timeframe$dailyQ
+ws96_loadrange$reg.predict <- ws96_cQ$coef[1] + ws96_cQ$coef[2]*ws96_loadrange$dailyQ
 
-ws110_final_timeline <- ws110_timeframe[-c(142, 143), ]
+ws96_reg_mf <- ws96_loadrange %>% 
+  mutate(reg.mass.flux = (Q.litres * reg.predict))
 
-ws110_reg_mf <- ws110_final_timeline %>% 
-  mutate(reg.mass.flux = ((dailyQ * reg.predict) / 15.6))
+ws96_reg_timeframe <- ws96_reg_mf[-c(1, 143, 144, 145), ] %>% 
+  mutate(reg.mg.day = (reg.mass.flux * 86400))
 
-ws110_reg_load_sum <- (sum(ws110_reg_mf$reg.mass.flux) * 12182400) / 1000000
+ws96.reg.mgC.per.km2.szn <- sum(ws96_reg_timeframe$reg.mg.day) / 106.8
+
+ws96.reg.kgC.per.km2.szn <- ws108.reg.mgC.per.km2.szn / 1000000
 
 
 
