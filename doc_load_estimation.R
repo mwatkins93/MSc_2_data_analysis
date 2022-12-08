@@ -43,28 +43,28 @@ mass_loads <- read_xlsx("doc_load_estimates.xlsx")
 
 setwd("/Volumes/MW/2020 Trent University/R/Thesis Data/Water_level_correlation/Discharge Estimates")
 
-ws110_dailyQ <- readRDS("ws110_dailyQ.rds")
+wsBL1_dailyQ <- readRDS("wsBL1_dailyQ.rds")
 
-ws110_chem <- wtr_chem %>% 
+wsBL1_chem <- wtr_chem %>% 
   select(-glfc.id) %>%
-  filter(site %in% "WS 110" & variable %in% "organic.carbon") %>% 
+  filter(site %in% "WS BL1" & variable %in% "organic.carbon") %>% 
   separate(date, c("year", "month", "day"), sep = "(\\-| )") %>% 
   select(-year)
 
-ws110_out <- left_join(ws110_dailyQ, ws110_chem) %>% 
+wsBL1_out <- left_join(wsBL1_dailyQ, wsBL1_chem) %>% 
   mutate(Q.litres = dailyQ * 1000) # This process works and also converts Q to L/s so I can obtain mass flux in mg/s
 
 ### 3.03 - Load range mass flux computation ----
 
 #### 3.03.1 - Check range of DOC ----
 
-range(ws110_out$value, na.rm = TRUE)
+range(wsBL1_out$value, na.rm = TRUE)
 
 #### 3.03.2 - DOC flux range calculation: high and low ----
 
-ws110_loadrange <- ws110_out %>% # making sure EVERY conversion is correct
-  mutate(top.mass.flux = (Q.litres * 17.283),
-         btm.mass.flux = (Q.litres * 4.342),
+wsBL1_loadrange <- wsBL1_out %>% # making sure EVERY conversion is correct
+  mutate(top.mass.flux = (Q.litres * 22.923),
+         btm.mass.flux = (Q.litres * 10.740),
          top.mg.min = (top.mass.flux * 60),
          btm.mg.min = (btm.mass.flux * 60),
          top.mg.hour = (top.mg.min * 60),
@@ -72,16 +72,16 @@ ws110_loadrange <- ws110_out %>% # making sure EVERY conversion is correct
          top.mg.day = (top.mg.hour * 24),
          btm.mg.day = (btm.mg.hour * 24))
 
-ws110_timeframe <- ws110_loadrange[-c(1, 2, 144, 145), ] # remove the rows outside of the set timeframe
+wsBL1_timeframe <- wsBL1_loadrange[-c(1, 2, 144, 145), ] # remove the rows outside of the set timeframe
 
-ws110.top.mg.szn <- sum(ws110_timeframe$top.mg.day) # sum the max amount for the study period
-ws110.btm.mg.szn <- sum(ws110_timeframe$btm.mg.day) # sum the min amount for the study period
+wsBL1.top.mg.szn <- sum(wsBL1_timeframe$top.mg.day) # sum the max amount for the study period
+wsBL1.btm.mg.szn <- sum(wsBL1_timeframe$btm.mg.day) # sum the min amount for the study period
 
-ws110.top.mgC.per.km2.szn <- ws110.top.mg.szn / 15.6 # standardise for catchment area
-ws110.btm.mgC.per.km2.szn <- ws110.btm.mg.szn / 15.6
+wsBL1.top.mgC.per.km2.szn <- wsBL1.top.mg.szn / 5.2 # standardise for catchment area
+wsBL1.btm.mgC.per.km2.szn <- wsBL1.btm.mg.szn / 5.2
   
-ws110.top.kgC.per.km2.szn <- ws110.top.mgC.per.km2.szn / 1000000 # convert to kg C / km2 * szn
-ws110.btm.kgC.per.km2.szn <- ws110.btm.mgC.per.km2.szn / 1000000
+wsBL1.top.kgC.per.km2.szn <- wsBL1.top.mgC.per.km2.szn / 1000000 # convert to kg C / km2 * szn
+wsBL1.btm.kgC.per.km2.szn <- wsBL1.btm.mgC.per.km2.szn / 1000000
 
 ######### Repeatable process for the other watersheds ################
 ######################################################################
@@ -105,23 +105,23 @@ ws87.int.kgC.per.km2.szn <- ws87.int.mgC.per.km2.szn / 1000000
 
 ### 3.05 - linear regression ----
 
-ws110_cQ <- lm(value ~ dailyQ, data = ws110_out) # make a model from the 6 manual Q and concurrent concentrations
+wsBL1_cQ <- lm(value ~ dailyQ, data = wsBL1_out) # make a model from the 6 manual Q and concurrent concentrations
 
-summary(ws110_cQ)
+summary(wsBL1_cQ)
 
 #### Manually predict concentrations based on regression
 
-ws110_loadrange$reg.predict <- ws110_cQ$coef[1] + ws110_cQ$coef[2]*ws110_loadrange$dailyQ
+wsBL1_loadrange$reg.predict <- wsBL1_cQ$coef[1] + wsBL1_cQ$coef[2]*wsBL1_loadrange$dailyQ
 
-ws110_reg_mf <- ws110_loadrange %>% 
+wsBL1_reg_mf <- wsBL1_loadrange %>% 
   mutate(reg.mass.flux = (Q.litres * reg.predict))
 
-ws110_reg_timeframe <- ws110_reg_mf[-c(1, 2, 144, 145), ] %>% 
+wsBL1_reg_timeframe <- wsBL1_reg_mf[-c(1, 2, 144, 145), ] %>% 
   mutate(reg.mg.day = (reg.mass.flux * 86400))
 
-ws110.reg.mgC.per.km2.szn <- sum(ws110_reg_timeframe$reg.mg.day) / 15.6
+wsBL1.reg.mgC.per.km2.szn <- sum(wsBL1_reg_timeframe$reg.mg.day) / 5.2
 
-ws110.reg.kgC.per.km2.szn <- ws110.reg.mgC.per.km2.szn / 1000000
+wsBL1.reg.kgC.per.km2.szn <- wsBL1.reg.mgC.per.km2.szn / 1000000
 
 
 
