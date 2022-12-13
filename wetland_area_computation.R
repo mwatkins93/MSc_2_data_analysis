@@ -28,9 +28,14 @@ wetland_area <- read_xls("/Volumes/MW/2020 Trent University/GIS/Excel Sheets/wet
 ### trim dataframe down to only columns I need and summarise area for each catchment
 
 wetarea_trim <- wetland_area %>% 
-  select(Area, OBJECTID) %>% 
-  group_by(OBJECTID) %>% 
-  mutate(total_wt_area = sum(Area))
+  select(OGF_ID, Area, interArea, OBJECTID)
+
+colnames(wetarea_trim) <- c("FRI.id", "drainage.area", "intersected.wetland.area", "site")
+
+wetland_out <- wetarea_trim %>% 
+  group_by(site) %>% 
+  mutate(wt.area.per.site = sum(intersected.wetland.area),
+         wt.percent.per.site = (wt.area.per.site / drainage.area) * 100)
 
 ### change
 
