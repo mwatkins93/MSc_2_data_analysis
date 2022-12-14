@@ -21,8 +21,6 @@ library(readxl)
 
 chem <- readRDS("glfc_chem_cleaned_v1.01.RDS")
 
-ws_char <- readRDS("watershed_characteristics_cleaned.RDS")
-
 watershed_table <- read_xlsx("Watershed_table_v1.xlsx")
 
 ## 3. TIDY // PROCESS ----
