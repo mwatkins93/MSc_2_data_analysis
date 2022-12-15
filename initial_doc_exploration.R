@@ -21,16 +21,18 @@ library(readxl)
 
 chem <- readRDS("glfc_chem_cleaned_v1.01.RDS")
 
-watershed_table <- read_xlsx("Watershed_table_v1.xlsx")
+watershed_table <- read_excel("/Volumes/MW/2020 Trent University/R/Thesis Data/MSc_data_analysis/Watershed_table_v1.xlsx")
+
+doc_export <- read_excel("doc_load_estimates.xlsx")
 
 ## 3. TIDY // PROCESS ----
 
 ### 3.01 - Subset to DOC
 
-chem_out <- chem %>% 
+chem_out <- chem %>%
   select(-glfc.id)
 
-doc <- chem_out %>% 
+doc <- chem_out %>%
   subset(variable == "organic.carbon")
 
 ### 3.02 - Connect DOC and watershed table
@@ -42,9 +44,14 @@ ws_doc <- left_join(watershed_table, doc, by = c("site","catchment.id")) %>%
   mutate(mean.doc = mean(value),
          doc.sd = sd(value))
 
+### 3.03 - Connect DOC export and watershed table
+
+ws_export <- left_join(watershed_table, doc_export, by = c("site", "catchment.id"))
+
+
 ## 4. PLOTTING ----
 
-### 4.01 - Look at DOC variability across time for all sites
+### 4.1 - Look at DOC variability across time for all sites ----
 
 doc %>% 
   ggplot(aes(date, value)) +
@@ -58,23 +65,20 @@ doc %>%
   facet_wrap(~ catchment.id) +
   labs(x = "", y = "DOC (mg/L)") # line plot variation
 
-### 4.02 - DOC and catchment area
+### 4.1.1 - DOC and catchment area ----
 
-area_doc <- ws_doc[ws_doc$variable.x == "Drainage Area (km2)", ]
-
-
-area_doc %>% 
-  ggplot(aes(value.x, mean.doc)) +
+ws_doc %>% 
+  ggplot(aes(`Drainage Area (km2)`, mean.doc)) +
   #geom_text(hjust = 0, vjust = 0) +
   geom_point() +
   scale_x_log10() +
   geom_errorbar(aes(ymin = mean.doc - doc.sd, ymax = mean.doc + doc.sd)) +
-  labs(x = expression(paste("Drainage Area ", (km^2))), y = "DOC (ppm)") +
+  labs(x = expression(paste("Drainage Area ", (km^2))), y = "DOC (mg/L)") +
   geom_smooth(method='lm', formula= y~x, se = FALSE)
 
 # add labels - label = catchment.id
 
-### 4.03 - DOC and slope
+### 4.1.2 - DOC and slope ----
 
 slope_doc <- ws_doc[ws_doc$variable.x == "slope", ]
 
@@ -86,7 +90,7 @@ slope_doc %>%
   geom_errorbar(aes(ymin = mean.doc - doc.sd, ymax = mean.doc + doc.sd)) +
   labs(x = "Slope (%)", y = "DOC (ppm)")
 
-### 4.04 - DOC and latitude
+### 4.1.3 - DOC and latitude ----
 
 lat <- ws_doc[ws_doc$variable.x == "latitude", ]
 
@@ -97,7 +101,7 @@ ggplot(aes(value.x, mean.doc)) +
   geom_errorbar(aes(ymin = mean.doc - doc.sd, ymax = mean.doc + doc.sd)) +
   labs(x = "Latitude", y = "DOC (mg/L)")
 
-### 4.05 - DOC and longitude
+### 4.1.4 - DOC and longitude ----
 
 long <- ws_doc[ws_doc$variable.x == "longitude", ]
 
@@ -108,7 +112,7 @@ long %>%
   geom_errorbar(aes(ymin = mean.doc - doc.sd, ymax = mean.doc + doc.sd)) +
   labs(x = "Longitude", y = "DOC (mg/L)")
 
-### 4.06 - DOC and elevation
+### 4.1.5 - DOC and elevation ----
 
 elev <- ws_doc[ws_doc$variable.x == "elevation" & ws_doc$mean.doc, ]
 
@@ -119,18 +123,16 @@ elev %>%
   geom_errorbar(aes(ymin = mean.doc - doc.sd, ymax = mean.doc + doc.sd)) +
   labs(x = "Elevation (masl)", y = "DOC (mg/L)")
 
-### 4.07 - DOC and open water
+### 4.1.6 - DOC and open water ----
 
-open_w <- ws_doc[ws_doc$variable.x == "open.water", ]
-
-open_w %>% 
-  ggplot(aes(value.x, mean.doc)) +
+ws_doc%>% 
+  ggplot(aes(`Open Water (%)`, mean.doc)) +
   geom_point() +
   geom_smooth(method = "lm", formula = y~x, se = FALSE) +
   geom_errorbar(aes(ymin = mean.doc - doc.sd, ymax = mean.doc + doc.sd)) +
   labs(x = "Open water (%)", y = "DOC (mg/L)")
 
-### 4.08 - DOC and wetland
+### 4.1.7 - DOC and wetland ----
 
 ws_doc %>%  
   ggplot(aes(`Wetland Cover (%)`, mean.doc)) +
@@ -139,40 +141,25 @@ ws_doc %>%
   geom_errorbar(aes(ymin = mean.doc - doc.sd, ymax = mean.doc + doc.sd)) +
   labs(x = "Wetland (%)", y = "DOC (mg/L)")
 
-### 4.09 - DOC and bog
+### 4.1.8 - DOC and deciduous ----
 
-bog <- ws_doc[ws_doc$variable.x == "bog", ]
-
-bog %>% 
-  ggplot(aes(value.x, mean.doc)) +
-  geom_point() +
-  geom_smooth(method = "lm", formula = y~x, se = FALSE) +
-  geom_errorbar(aes(ymin = mean.doc - doc.sd, ymax = mean.doc + doc.sd)) +
-  labs(x = "Bog (%)", y = "DOC (mg/L)")
-
-### 4.10 - DOC and deciduous
-
-deciduous <- ws_doc[ws_doc$variable.x == "Deciduous Forest (%)", ]
-
-deciduous %>% 
-  ggplot(aes(value.x, mean.doc)) +
+ws_doc %>% 
+  ggplot(aes(`Deciduous Forest (%)`, mean.doc)) +
   geom_point() +
   geom_smooth(method = "lm", formula = y~x, se = FALSE,) +
   geom_errorbar(aes(ymin = mean.doc - doc.sd, ymax = mean.doc + doc.sd)) +
-  labs(x = "Deciduous tree cover (%)", y = "DOC (mg/L)")
+  labs(x = "Deciduous forest cover (%)", y = "DOC (mg/L)")
 
-### 4.11 - DOC and conifer
+### 4.1.9 - DOC and conifer ----
 
-conifer <- ws_doc[ws_doc$variable.x == "Coniferous Forest (%)", ]
-
-conifer %>% 
-  ggplot(aes(value.x, mean.doc)) +
+ws_doc %>% 
+  ggplot(aes(`Coniferous Forest (%)`, mean.doc)) +
   geom_point() +
   geom_smooth(method = "lm", formula = y~x, se = FALSE) +
   geom_errorbar(aes(ymin = mean.doc - doc.sd, ymax = mean.doc + doc.sd)) +
-  labs(x = "Coniferous tree cover (%)", y = "DOC (mg/L)")
+  labs(x = "Coniferous forest cover (%)", y = "DOC (mg/L)")
 
-### 4.12 - DOC and mixed tree coverage
+### 4.1.10 - DOC and mixed tree coverage ----
 
 mixed <- ws_doc[ws_doc$variable.x == "Mixed Forest (%)", ]
 
@@ -183,16 +170,76 @@ mixed %>%
   geom_errorbar(aes(ymin = mean.doc - doc.sd, ymax = mean.doc + doc.sd)) +
   labs(x = "Mixed tree cover (%)", y = "DOC (mg/L)")
 
-### 4.13 - DOC and sparse tree coverage
+### 4.1.11 - DOC and total productive forest ----
 
-sparse <- ws_doc[ws_doc$variable.x == "Sparse Forest (%)", ]
-
-sparse %>% 
-  ggplot(aes(value.x, mean.doc)) +
+ws_doc %>% 
+  ggplot(aes(`Total Productive Forest (%)`, mean.doc)) +
   geom_point() +
   geom_smooth(method = "lm", formula = y~x, se = FALSE) +
   geom_errorbar(aes(ymin = mean.doc - doc.sd, ymax = mean.doc + doc.sd)) +
-  labs(x = "Sparse tree cover (%)", y = "DOC (mg/L)")
+  labs(x = "Total productive forest (%)", y = "DOC (mg/L)")
+
+### 4.2 - DOC export and explanatory landscape variables ----
+
+### 4.2.1 - Export and drainage area ----
+ws_export %>% 
+  ggplot(aes(`Drainage Area (km2)`, `linear interpolation (g C/m^2/season)`)) +
+  #geom_text(hjust = 0, vjust = 0) +
+  geom_point() +
+  geom_errorbar(aes(ymin = `minimum (g C/m^2/season)`, ymax = `maximum (g C/m^2/season)`)) +
+  labs(x = expression(paste("Drainage Area ", (km^2))), y = expression(paste("DOC export ", ("g C"/m^2/"season")))) +
+  geom_smooth(method='lm', formula= y~x, se = FALSE)
+
+### 4.2.2 - Export and wetland area
+
+ws_export %>% 
+  ggplot(aes(`Wetland Cover (%)`, `linear interpolation (g C/m^2/season)`)) +
+  #geom_text(hjust = 0, vjust = 0) +
+  geom_point() +
+  geom_errorbar(aes(ymin = `minimum (g C/m^2/season)`, ymax = `maximum (g C/m^2/season)`)) +
+  labs(x = "Wetland area (%)", y = expression(paste("DOC export ", ("g C"/m^2/"season")))) +
+  geom_smooth(method='lm', formula= y~x, se = FALSE)
+
+### 4.2.3 = Export and open water
+
+ws_export %>% 
+  ggplot(aes(`Open Water (%)`, `linear interpolation (g C/m^2/season)`)) +
+  #geom_text(hjust = 0, vjust = 0) +
+  geom_point() +
+  geom_errorbar(aes(ymin = `minimum (g C/m^2/season)`, ymax = `maximum (g C/m^2/season)`)) +
+  labs(x = "Open water (%)", y = expression(paste("DOC export ", ("g C"/m^2/"season")))) +
+  geom_smooth(method='lm', formula= y~x, se = FALSE)
+
+### 4.2.4 = Export and total forest cover
+
+ws_export %>% 
+  ggplot(aes(`Total Productive Forest (%)`, `linear interpolation (g C/m^2/season)`)) +
+  #geom_text(hjust = 0, vjust = 0) +
+  geom_point() +
+  geom_errorbar(aes(ymin = `minimum (g C/m^2/season)`, ymax = `maximum (g C/m^2/season)`)) +
+  labs(x = "Total productive forest (%)", y = expression(paste("DOC export ", ("g C"/m^2/"season")))) +
+  geom_smooth(method='lm', formula= y~x, se = FALSE)
+
+### 4.2.5 = Export and coniferous forest cover
+
+ws_export %>% 
+  ggplot(aes(`Coniferous Forest (%)`, `linear interpolation (g C/m^2/season)`)) +
+  #geom_text(hjust = 0, vjust = 0) +
+  geom_point() +
+  geom_errorbar(aes(ymin = `minimum (g C/m^2/season)`, ymax = `maximum (g C/m^2/season)`)) +
+  labs(x = "Coniferous forest (%)", y = expression(paste("DOC export ", ("g C"/m^2/"season")))) +
+  geom_smooth(method='lm', formula= y~x, se = FALSE)
+
+### 4.2.6 = Export and deciduous forest cover
+
+ws_export %>% 
+  ggplot(aes(`Deciduous Forest (%)`, `linear interpolation (g C/m^2/season)`)) +
+  #geom_text(hjust = 0, vjust = 0) +
+  geom_point() +
+  geom_errorbar(aes(ymin = `minimum (g C/m^2/season)`, ymax = `maximum (g C/m^2/season)`)) +
+  labs(x = "Deciduous forest (%)", y = expression(paste("DOC export ", ("g C"/m^2/"season")))) +
+  geom_smooth(method='lm', formula= y~x, se = FALSE) +
+  scale_x_continuous(limits=c(20, 60))
 
 ## 5. SAVING // EXPORTING ----
 
