@@ -9,6 +9,16 @@
 
 ## 0. NOTES ----
 
+### colours - c("#56B4E9", "#CC79A7", "#009E73", "#E69F00")
+### shapes - c(17, 18, 16, 15)
+
+### insert this to update graphs:   
+
+geom_point(aes(colour = Group),  size = 2) +
+theme(legend.title=element_blank()) +
+scale_colour_manual(values = c("#E69F00", "#56B4E9", "#009E73", 
+                                 "#F0E442"))
+
 ## 1. PREPARE ----
 
 rm(list=ls())
@@ -70,9 +80,12 @@ doc %>%
 ws_doc %>% 
   ggplot(aes(`Drainage Area (km2)`, mean.doc)) +
   #geom_text(hjust = 0, vjust = 0) +
-  geom_point() +
+  geom_point(aes(colour = Group),  size = 2) +
   scale_x_log10() +
   geom_errorbar(aes(ymin = mean.doc - doc.sd, ymax = mean.doc + doc.sd)) +
+  theme(legend.title=element_blank()) +
+  scale_colour_manual(values = c("#E69F00", "#56B4E9", "#009E73", 
+                        "#F0E442")) +
   labs(x = expression(paste("Drainage Area ", (km^2))), y = "DOC (mg/L)") +
   geom_smooth(method='lm', formula= y~x, se = FALSE)
 
@@ -80,45 +93,52 @@ ws_doc %>%
 
 ### 4.1.2 - DOC and slope ----
 
-slope_doc <- ws_doc[ws_doc$variable.x == "slope", ]
-
-slope_doc %>% 
-  ggplot(aes(value.x, mean.doc)) +
+ws_doc %>% 
+  ggplot(aes(`Slope (degrees)`, mean.doc)) +
   #geom_text(hjust = 0, vjust = 0) +
   geom_smooth(method = "lm", formula = y~x, se = FALSE) +
-  geom_point() +
+  geom_point(aes(colour = Group),  size = 2) +
+  theme(legend.title=element_blank()) +
+  scale_colour_manual(values = c("#E69F00", "#56B4E9", "#009E73", 
+                                 "#F0E442")) +
   geom_errorbar(aes(ymin = mean.doc - doc.sd, ymax = mean.doc + doc.sd)) +
-  labs(x = "Slope (%)", y = "DOC (ppm)")
+  xlab(expression("Slope " ( degree))) +
+  labs(y = "DOC (mg/L)")
 
 ### 4.1.3 - DOC and latitude ----
 
-lat <- ws_doc[ws_doc$variable.x == "latitude", ]
 
-lat %>% 
-ggplot(aes(value.x, mean.doc)) +
-  geom_point() +
+
+ws_doc %>% 
+ggplot(aes(Latitude, mean.doc)) +
+  geom_point(aes(colour = Group),  size = 2) +
+  theme(legend.title=element_blank()) +
+  scale_colour_manual(values = c("#E69F00", "#56B4E9", "#009E73", 
+                                 "#F0E442")) +
   geom_smooth(method = "lm", formula = y~x, se = FALSE) +
   geom_errorbar(aes(ymin = mean.doc - doc.sd, ymax = mean.doc + doc.sd)) +
   labs(x = "Latitude", y = "DOC (mg/L)")
 
 ### 4.1.4 - DOC and longitude ----
 
-long <- ws_doc[ws_doc$variable.x == "longitude", ]
-
-long %>% 
-  ggplot(aes(value.x, mean.doc)) +
-  geom_point() +
+ws_doc %>% 
+  ggplot(aes(Longitude, mean.doc)) +
+  geom_point(aes(colour = Group),  size = 2) +
+  theme(legend.title=element_blank()) +
+  scale_colour_manual(values = c("#E69F00", "#56B4E9", "#009E73", 
+                                 "#F0E442")) +
   geom_smooth(method = "lm", formula = y~x, se = FALSE) +
   geom_errorbar(aes(ymin = mean.doc - doc.sd, ymax = mean.doc + doc.sd)) +
   labs(x = "Longitude", y = "DOC (mg/L)")
 
 ### 4.1.5 - DOC and elevation ----
 
-elev <- ws_doc[ws_doc$variable.x == "elevation" & ws_doc$mean.doc, ]
-
-elev %>% 
-  ggplot(aes(value.x, mean.doc)) +
-  geom_point() +
+ws_doc %>% 
+  ggplot(aes(`Elevation (m a.s.l.)`, mean.doc)) +
+  geom_point(aes(colour = Group),  size = 2) +
+  theme(legend.title=element_blank()) +
+  scale_colour_manual(values = c("#E69F00", "#56B4E9", "#009E73", 
+                                 "#F0E442")) +
   geom_smooth(method = "lm", formula = y~x, se = FALSE) +
   geom_errorbar(aes(ymin = mean.doc - doc.sd, ymax = mean.doc + doc.sd)) +
   labs(x = "Elevation (masl)", y = "DOC (mg/L)")
@@ -127,7 +147,10 @@ elev %>%
 
 ws_doc%>% 
   ggplot(aes(`Open Water (%)`, mean.doc)) +
-  geom_point() +
+  geom_point(aes(colour = Group),  size = 2) +
+  theme(legend.title=element_blank()) +
+  scale_colour_manual(values = c("#E69F00", "#56B4E9", "#009E73", 
+                                 "#F0E442")) +
   geom_smooth(method = "lm", formula = y~x, se = FALSE) +
   geom_errorbar(aes(ymin = mean.doc - doc.sd, ymax = mean.doc + doc.sd)) +
   labs(x = "Open water (%)", y = "DOC (mg/L)")
@@ -136,7 +159,10 @@ ws_doc%>%
 
 ws_doc %>%  
   ggplot(aes(`Wetland Cover (%)`, mean.doc)) +
-  geom_point() +
+  geom_point(aes(colour = Group),  size = 2) +
+  theme(legend.title=element_blank()) +
+  scale_colour_manual(values = c("#E69F00", "#56B4E9", "#009E73", 
+                                 "#F0E442")) +
   geom_smooth(method = "lm", formula = y~x, se = FALSE) +
   geom_errorbar(aes(ymin = mean.doc - doc.sd, ymax = mean.doc + doc.sd)) +
   labs(x = "Wetland (%)", y = "DOC (mg/L)")
@@ -145,7 +171,10 @@ ws_doc %>%
 
 ws_doc %>% 
   ggplot(aes(`Deciduous Forest (%)`, mean.doc)) +
-  geom_point() +
+  geom_point(aes(colour = Group),  size = 2) +
+  theme(legend.title=element_blank()) +
+  scale_colour_manual(values = c("#E69F00", "#56B4E9", "#009E73", 
+                                 "#F0E442")) +
   geom_smooth(method = "lm", formula = y~x, se = FALSE,) +
   geom_errorbar(aes(ymin = mean.doc - doc.sd, ymax = mean.doc + doc.sd)) +
   labs(x = "Deciduous forest cover (%)", y = "DOC (mg/L)")
@@ -154,7 +183,10 @@ ws_doc %>%
 
 ws_doc %>% 
   ggplot(aes(`Coniferous Forest (%)`, mean.doc)) +
-  geom_point() +
+  geom_point(aes(colour = Group),  size = 2) +
+  theme(legend.title=element_blank()) +
+  scale_colour_manual(values = c("#E69F00", "#56B4E9", "#009E73", 
+                                 "#F0E442")) +
   geom_smooth(method = "lm", formula = y~x, se = FALSE) +
   geom_errorbar(aes(ymin = mean.doc - doc.sd, ymax = mean.doc + doc.sd)) +
   labs(x = "Coniferous forest cover (%)", y = "DOC (mg/L)")
@@ -174,7 +206,10 @@ mixed %>%
 
 ws_doc %>% 
   ggplot(aes(`Total Productive Forest (%)`, mean.doc)) +
-  geom_point() +
+  geom_point(aes(colour = Group),  size = 2) +
+  theme(legend.title=element_blank()) +
+  scale_colour_manual(values = c("#E69F00", "#56B4E9", "#009E73", 
+                                 "#F0E442")) +
   geom_smooth(method = "lm", formula = y~x, se = FALSE) +
   geom_errorbar(aes(ymin = mean.doc - doc.sd, ymax = mean.doc + doc.sd)) +
   labs(x = "Total productive forest (%)", y = "DOC (mg/L)")
@@ -184,8 +219,10 @@ ws_doc %>%
 ### 4.2.1 - Export and drainage area ----
 ws_export %>% 
   ggplot(aes(`Drainage Area (km2)`, `linear interpolation (g C/m^2/season)`)) +
-  #geom_text(hjust = 0, vjust = 0) +
-  geom_point() +
+  geom_point(aes(colour = Group),  size = 2) +
+  theme(legend.title=element_blank()) +
+  scale_colour_manual(values = c("#E69F00", "#56B4E9", "#009E73", 
+                                 "#F0E442")) +
   geom_errorbar(aes(ymin = `minimum (g C/m^2/season)`, ymax = `maximum (g C/m^2/season)`)) +
   labs(x = expression(paste("Drainage Area ", (km^2))), y = expression(paste("DOC export ", ("g C"/m^2/"season")))) +
   geom_smooth(method='lm', formula= y~x, se = FALSE)
@@ -194,8 +231,10 @@ ws_export %>%
 
 ws_export %>% 
   ggplot(aes(`Wetland Cover (%)`, `linear interpolation (g C/m^2/season)`)) +
-  #geom_text(hjust = 0, vjust = 0) +
-  geom_point() +
+  geom_point(aes(colour = Group),  size = 2) +
+  theme(legend.title=element_blank()) +
+  scale_colour_manual(values = c("#E69F00", "#56B4E9", "#009E73", 
+                                 "#F0E442")) +
   geom_errorbar(aes(ymin = `minimum (g C/m^2/season)`, ymax = `maximum (g C/m^2/season)`)) +
   labs(x = "Wetland area (%)", y = expression(paste("DOC export ", ("g C"/m^2/"season")))) +
   geom_smooth(method='lm', formula= y~x, se = FALSE)
@@ -204,8 +243,10 @@ ws_export %>%
 
 ws_export %>% 
   ggplot(aes(`Open Water (%)`, `linear interpolation (g C/m^2/season)`)) +
-  #geom_text(hjust = 0, vjust = 0) +
-  geom_point() +
+  geom_point(aes(colour = Group),  size = 2) +
+  theme(legend.title=element_blank()) +
+  scale_colour_manual(values = c("#E69F00", "#56B4E9", "#009E73", 
+                                 "#F0E442")) +
   geom_errorbar(aes(ymin = `minimum (g C/m^2/season)`, ymax = `maximum (g C/m^2/season)`)) +
   labs(x = "Open water (%)", y = expression(paste("DOC export ", ("g C"/m^2/"season")))) +
   geom_smooth(method='lm', formula= y~x, se = FALSE)
@@ -214,8 +255,10 @@ ws_export %>%
 
 ws_export %>% 
   ggplot(aes(`Total Productive Forest (%)`, `linear interpolation (g C/m^2/season)`)) +
-  #geom_text(hjust = 0, vjust = 0) +
-  geom_point() +
+  geom_point(aes(colour = Group),  size = 2) +
+  theme(legend.title=element_blank()) +
+  scale_colour_manual(values = c("#E69F00", "#56B4E9", "#009E73", 
+                                 "#F0E442")) +
   geom_errorbar(aes(ymin = `minimum (g C/m^2/season)`, ymax = `maximum (g C/m^2/season)`)) +
   labs(x = "Total productive forest (%)", y = expression(paste("DOC export ", ("g C"/m^2/"season")))) +
   geom_smooth(method='lm', formula= y~x, se = FALSE)
@@ -224,8 +267,10 @@ ws_export %>%
 
 ws_export %>% 
   ggplot(aes(`Coniferous Forest (%)`, `linear interpolation (g C/m^2/season)`)) +
-  #geom_text(hjust = 0, vjust = 0) +
-  geom_point() +
+  geom_point(aes(colour = Group),  size = 2) +
+  theme(legend.title=element_blank()) +
+  scale_colour_manual(values = c("#E69F00", "#56B4E9", "#009E73", 
+                                 "#F0E442")) +
   geom_errorbar(aes(ymin = `minimum (g C/m^2/season)`, ymax = `maximum (g C/m^2/season)`)) +
   labs(x = "Coniferous forest (%)", y = expression(paste("DOC export ", ("g C"/m^2/"season")))) +
   geom_smooth(method='lm', formula= y~x, se = FALSE)
@@ -234,8 +279,10 @@ ws_export %>%
 
 ws_export %>% 
   ggplot(aes(`Deciduous Forest (%)`, `linear interpolation (g C/m^2/season)`)) +
-  #geom_text(hjust = 0, vjust = 0) +
-  geom_point() +
+  geom_point(aes(colour = Group),  size = 2) +
+  theme(legend.title=element_blank()) +
+  scale_colour_manual(values = c("#E69F00", "#56B4E9", "#009E73", 
+                                 "#F0E442")) +
   geom_errorbar(aes(ymin = `minimum (g C/m^2/season)`, ymax = `maximum (g C/m^2/season)`)) +
   labs(x = "Deciduous forest (%)", y = expression(paste("DOC export ", ("g C"/m^2/"season")))) +
   geom_smooth(method='lm', formula= y~x, se = FALSE) +
