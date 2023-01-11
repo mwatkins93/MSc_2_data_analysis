@@ -15,8 +15,12 @@ rm(list=ls())
 options(stringsASfactors = FALSE, scipen = 999, encoding = "UTF-8")
 
 library(tidyverse)
+library(xtable)
+library(readxl)
 
 ## 2. IMPORT ----
+
+doc_table <- read_excel("~/Desktop/2020 Trent University/R/Thesis Data/MSc_data_analysis/Watershed_table_v1.xlsx", sheet = 2)
 
 chem <- readRDS("glfc_chem_cleaned_v1.01.rds")
 
@@ -25,9 +29,6 @@ chem <- readRDS("glfc_chem_cleaned_v1.01.rds")
 doc_data <- chem %>% 
   filter(variable %in% "organic.carbon")
 
-doc_tbl_data <- cQ_coeffiecient_of_variance_calc %>% 
-  select(catchment, catchment.id, mean.conc, std.conc, cv.conc)
-
 doc_calcs <- doc_data %>% 
 group_by(site) %>% 
   mutate(mean.conc = mean(value),
@@ -35,9 +36,12 @@ group_by(site) %>%
          cv.conc = std.conc / mean.conc) %>% 
   select(-value)
 
-
 ## 4. PLOTTING ----
 
 ## 5. SAVING // EXPORTING ----
+
+doc_xtable <- xtable(doc_table)
+  
+print.xtable(doc_xtable, type = "html", file = "table1_doc_char.html")
 
 ## 6. TRIAL // JUNK CODE ----
