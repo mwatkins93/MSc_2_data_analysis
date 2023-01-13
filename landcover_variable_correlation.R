@@ -48,6 +48,14 @@ ggdensity(ws_landcover_out$`Deciduous Forest (%)`) # double-checking that decidu
 
 corrplot(cor_spearman, method = "number")
 
+png(file="landscape_correlation.png", res=300, width=7000, height=7000)
+corrplot(cor_spearman, tl.cex = 3, tl.col = "black", method = "color", 
+         outline = T,  order="hclust", 
+         addCoef.col = "black", number.digits = 2, number.cex = 3, 
+         cl.pos = 'b', cl.cex = 3, addrect = 3, rect.lwd = 3, 
+         col = colorRampPalette(c("midnightblue", "white","darkred"))(100))
+dev.off()
+
 ## 5. SAVING // EXPORTING ----
 
 ## 6. TRIAL // JUNK CODE ----
