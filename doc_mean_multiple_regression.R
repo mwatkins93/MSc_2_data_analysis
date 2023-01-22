@@ -32,9 +32,11 @@ mean_doc <- doc_table %>%
 
 ### 3.01 - Attach mean DOC to ws table and run the model
 
-doc_ws_table <- left_join(mean_doc, ws_table, by = "Site name") %>% 
+doc_ws_table <- left_join(mean_doc, ws_table, by = "Site name")
   
-lm(mean ~ `Drainage Area (km2)` + `Elevation (m a.s.l.)` + `Slope (degrees)`, data = doc_table_out)
+doc_mregression <- lm(Mean ~ `Drainage Area (km2)` + `Elevation (m a.s.l.)` + `Slope (degrees)` + `Wetland Cover (%)` + `Open Water (%)` + `Total Productive Forest (%)` + `Deciduous Forest (%)` + `Coniferous Forest (%)` + `20-year Harvest Disturbance (%)`, data = doc_ws_table)
+
+summary(doc_mregression)
 
 ## 4. PLOTTING ----
 
