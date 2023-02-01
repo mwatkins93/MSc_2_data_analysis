@@ -4,10 +4,14 @@
 ## Project: MSc data analysis
 ## Objective: DOC Correlation and distance relationship
 ## Inputs: watershed table and glfc chemistry
-## Outputs:
+## Outputs: ggplots
 #########################
 
 ## 0. NOTES ----
+
+### 0.1 - Can just load the clean dist_coeff_df RDS file now for quick plotting
+
+dist_corr <- readRDS("distance_coeff_clean.rds")
 
 ## 1. PREPARE ----
 
@@ -57,9 +61,9 @@ select(-glfc.id, -date) %>%
   filter(variable %in% "organic.carbon") %>% 
   pivot_wider(names_from = "sample", values_from = "value")
 
-doc_shift <- doc[30:1, ]
+doc_shift <- doc[30:1, ] # reverse site.name column order
 
-doc_ordered <- doc_shift[c(9, 1:5, 7, 8, 6, 10:13, 15, 14, 16, 17, 26:18, 27:30),]
+doc_ordered <- doc_shift[c(9, 1:5, 7, 8, 6, 10:13, 15, 14, 16, 17, 26:18, 27:30),] # adjust site order so its the same as the lat/long
 
 doc_corr_mtx <- cor(t(doc_ordered[4:9]), method="spearman", use = "pairwise.complete.obs") # all correlations between rows completed
 
@@ -89,18 +93,19 @@ dist_coeff_out <- dist_coeff_out[, c(3, 4, 1, 5, 2)]
 
 ### 4.01 - Plot the general plot of everything
 
-dist_coeff_out %>% 
+dist_corr %>% 
   ggplot(aes(x = euclidean.distance, y = correlation.coeff)) +
   geom_point() +
   theme_bw()
 
 ### 4.02 - What if we remove the sites with missing samples (C13 and C10)
 
-dist_coeff_out %>% 
+dist_corr %>% 
   filter(!site.one %in% c("C13", "C10") & !site.two %in% c("C13", "C10")) %>% 
   ggplot(aes(x = euclidean.distance, y = correlation.coeff)) +
   geom_point() +
-  theme_bw()
+  theme_bw() +
+  geom_smooth(method = "lm", se = FALSE)
 
 ## 5. SAVING // EXPORTING ----
 
@@ -110,20 +115,4 @@ dist_coeff_out %>%
   saveRDS(file = "distance_coeff_clean.rds")
 
 ## 6. TRIAL // JUNK CODE ----
-
-### Find a way to make all unique site pairs ----
-
-site_list <- pairs_split %>% 
-  select(site.one)
-
-site_list[nrow(site_list) + 1,] <- "C14" # add final site
-
-site_list$site.two = site_list$site.one # duplicate the column
-
-all_pairs <- expand.grid(site_list)
-
-### Find a way to split the sites into site.one and site.two ----
-
-pairs_split <- site_pairs %>% 
-  separate(site.pair, c('site.one', 'site.two')) # this works
 
