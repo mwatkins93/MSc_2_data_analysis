@@ -13,6 +13,10 @@
 
 dist_corr <- readRDS("distance_coeff_clean.rds")
 
+### 0.1 - Make a km distance column for easier graph interpretation
+
+dist_corr$euclidean.distance.km <- dist_corr$euclidean.distance / 1000
+
 ## 1. PREPARE ----
 
 rm(list=ls())
@@ -91,12 +95,14 @@ dist_coeff_out <- dist_coeff_out[, c(3, 4, 1, 5, 2)]
 
 ## 4. PLOTTING ----
 
-### 4.01 - Plot the general plot of everything
+### 4.01 - Plot of everything
 
 dist_corr %>% 
-  ggplot(aes(x = euclidean.distance, y = correlation.coeff)) +
+  ggplot(aes(x = euclidean.distance.km, y = correlation.coeff)) +
   geom_point() +
-  theme_bw()
+  theme_classic() +
+  geom_smooth(method = "lm", se = FALSE) +
+  labs(y = "Mean DOC correlation coefficient", x = "Euclidean distance (m)")
 
 ### 4.02 - What if we remove the sites with missing samples (C13 and C10)
 
@@ -105,7 +111,8 @@ dist_corr %>%
   ggplot(aes(x = euclidean.distance, y = correlation.coeff)) +
   geom_point() +
   theme_bw() +
-  geom_smooth(method = "lm", se = FALSE)
+  geom_smooth(method = "lm", se = FALSE) +
+  labs(y = "Mean DOC correlation coefficient", x = "Euclidean distance (m)")
 
 ## 5. SAVING // EXPORTING ----
 
