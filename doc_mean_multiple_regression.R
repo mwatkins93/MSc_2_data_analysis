@@ -88,13 +88,98 @@ kitchen_sink_table <- dredge(doc_mregression, rank = "AICc") # test out the glob
 model_table <- dredge(doc_mreg_concise, rank = "AICc") # generate a model selection table based on AICc
 
 # The 'kitchen sink' model has so many variables it takes forever to load. Therefore, I have tried this out with the more concise model (6 variables). 
-# AICc suggests that the best model (#25) contains only drainage area and open water (which are somewhat correlated - r = 0.52). Second best is drainage area, open water and coniferous forest.
-
+# AICc suggests that the best model (#25) contains only drainage area and open water (which are somewhat correlated - r = 0.52). Second best is drainage area, open water and coniferous forest
 summary(model.avg(model_table)) # multimodel inference
 
 sw(model_table) # relative importance of the included predictor variables
 
 # Interesting that wetland cover has the lowest importance relative to the other variables
+
+### 3.05 - Jason's model analysis and PCA exploration ----
+
+#### 3.05.1 - Model exploration ----
+
+mod1 <- lm(Mean ~ Group + `Drainage Area (km2)`, data = doc_ws_table) # remove open water
+
+mod2 <- lm(Mean ~ Group + log10(`Drainage Area (km2)`) + `Elevation (m a.s.l.)` + `Slope (degrees)` + `Wetland Cover (%)` + `Open Water (%)` + `Coniferous Forest (%)`, data = doc_ws_table)
+
+mod2_upd <- lm(Mean ~ Group + log10(`Drainage Area (km2)`) + `Elevation (m a.s.l.)` + `Wetland Cover (%)` + `Open Water (%)` + `Coniferous Forest (%)`, data = doc_ws_table)
+
+## based on PCA results below - probably should only keep one of (a) slope or (b) wetland cover. Also, should only keep one of (a) deciduous or (b) coniferous
+
+#mod3 <- lm(Mean ~ `Drainage Area (km2)` + `Elevation (m a.s.l.)` + `Slope (degrees)` + `Wetland Cover (%)` + `Open Water (%)` + `Coniferous Forest (%)` + `Deciduous Forest (%)`, data = doc_ws_table)
+
+summary(mod2)
+summary(mod2_upd)
+
+model_table <- dredge(mod2, rank = "AICc") # generate a model selection table based on AICc
+
+subset(model_table, delta <= 4, recalc.weights=FALSE)
+
+summary(model.avg(model_table)) # multimodel inference
+
+plot(model.avg(model_table))
+
+sw(model_table) # relative importance of the included predictor variables
+
+model.avg(model_table) # look at correlations between predictor variables
+
+# look at all models
+summary(mod <- lm(Mean ~ Group, data = doc_ws_table))
+summary(mod <- lm(Mean ~ `Drainage Area (km2)`, data = doc_ws_table)) # sig
+summary(mod <- lm(Mean ~ `Elevation (m a.s.l.)`, data = doc_ws_table))
+summary(mod <- lm(Mean ~ `Slope (degrees)`, data = doc_ws_table))
+summary(mod <- lm(Mean ~ `Wetland Cover (%)`, data = doc_ws_table))
+summary(mod <- lm(Mean ~ `Open Water (%)`, data = doc_ws_table)) # sig
+summary(mod <- lm(Mean ~ `Deciduous Forest (%)`, data = doc_ws_table))
+summary(mod <- lm(Mean ~ `Coniferous Forest (%)`, data = doc_ws_table))
+summary(mod <- lm(Mean ~ `5-year Wildfire Disturbance (%)`, data = doc_ws_table))
+summary(mod <- lm(Mean ~ `5-year Harvest Disturbance (%)`, data = doc_ws_table))
+summary(mod <- lm(Mean ~ `5-year Insect Disturbance (%)`, data = doc_ws_table))
+summary(mod <- lm(Mean ~ `5-year Abiotic Disturbance (%)`, data = doc_ws_table))
+summary(mod <- lm(Mean ~ `10-year Wildfire Disturbance (%)`, data = doc_ws_table))
+summary(mod <- lm(Mean ~ `10-year Harvest Disturbance (%)`, data = doc_ws_table))
+summary(mod <- lm(Mean ~ `10-year Insect Disturbance (%)`, data = doc_ws_table))
+summary(mod <- lm(Mean ~ `10-year Abiotic Disturbance (%)`, data = doc_ws_table))
+summary(mod <- lm(Mean ~ `15-year Wildfire Disturbance (%)`, data = doc_ws_table))
+summary(mod <- lm(Mean ~ `15-year Harvest Disturbance (%)`, data = doc_ws_table))
+summary(mod <- lm(Mean ~ `15-year Insect Disturbance (%)`, data = doc_ws_table))
+summary(mod <- lm(Mean ~ `15-year Abiotic Disturbance (%)`, data = doc_ws_table))
+summary(mod <- lm(Mean ~ `20-year Wildfire Disturbance (%)`, data = doc_ws_table))
+summary(mod <- lm(Mean ~ `20-year Harvest Disturbance (%)`, data = doc_ws_table))
+summary(mod <- lm(Mean ~ `20-year Insect Disturbance (%)`, data = doc_ws_table))
+summary(mod <- lm(Mean ~ `20-year Abiotic Disturbance (%)`, data = doc_ws_table))
+
+# Seems that disturbance, deciduous cover and wetland percentage aren't really important for explaining variability..
+# Log of catchment area really changes its importance level
+# Open water % seems to be significant throughout 
+
+#### 3.05.2 - Predictor PCA analysis ----
+
+pca.dat <- doc_ws_table[,c(10:14, 16:17)]
+
+pca <- prcomp(pca.dat, center = T, scale. = T)
+
+summary(pca)
+
+plot(pca)
+biplot(pca)
+
+ggplot(aes(`Wetland Cover (%)`, `Slope (degrees)`), data = doc_ws_table) + geom_point()
+ggplot(aes(`Deciduous Forest (%)`, `Coniferous Forest (%)`), data = doc_ws_table) + geom_point()
+ggplot(aes(`Elevation (m a.s.l.)`, log10(`Drainage Area (km2)`)), data = doc_ws_table) + geom_point()
+
+ggplot(aes(`Wetland Cover (%)`, Mean), data = doc_ws_table) + geom_point() + geom_smooth(method = 'lm')
+
+ggplot(aes(`Site name`, Mean), data = doc_ws_table) + geom_point() + geom_smooth(method = 'lm')
+
+## site 67 is an outlier
+
+chem %>%
+  filter(variable == 'organic.carbon') %>%
+  ggplot(aes(date, value)) +
+  facet_wrap(~site) +
+  geom_point()
 
 ## 4. PLOTTING ----
 
