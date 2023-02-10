@@ -26,8 +26,6 @@ doc_table <- read_excel("~/Desktop/2020 Trent University/R/Thesis Data/MSc_data_
 
 ws_table <- read_excel("~/Desktop/2020 Trent University/R/Thesis Data/MSc_data_analysis/Watershed_table_v1.xlsx")
 
-chem <- readRDS("glfc_chem_cleaned_v1.01.rds")
-
 ## 3. TIDY // PROCESS ----
 
 mean_doc <- doc_table %>% 
@@ -85,7 +83,7 @@ model_fit <- glmulti(y = doc_mregression, level = 1, crit = "aicc")
 
 options(na.action = "na.fail") # change na options so dredge function can work
 
-kitchen_sink_table <- dredge(doc_mregression, rank = "AICc") # test out the global model
+kitchen_sink_table <- dredge(doc_mregression, rank = "AICc") # test out the global model - DON'T run this right now!
 
 model_table <- dredge(doc_mreg_concise, rank = "AICc") # generate a model selection table based on AICc
 
