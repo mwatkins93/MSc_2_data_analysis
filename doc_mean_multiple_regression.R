@@ -95,9 +95,9 @@ sw(model_table) # relative importance of the included predictor variables
 
 # Interesting that wetland cover has the lowest importance relative to the other variables
 
-### 3.05 - Jason's model analysis and PCA exploration ----
+### 3.06 - Jason's model analysis and PCA exploration ----
 
-#### 3.05.1 - Model exploration ----
+#### 3.06.1 - Model exploration ----
 
 mod1 <- lm(Mean ~ Group + `Drainage Area (km2)`, data = doc_ws_table) # remove open water
 
@@ -156,11 +156,11 @@ summary(mod <- lm(Mean ~ `20-year Abiotic Disturbance (%)`, data = doc_ws_table)
 
 #### 3.05.2 - Predictor PCA analysis ----
 
-pca.dat <- doc_ws_table[,c(10:14, 16:17)]
+pca.dat <- doc_ws_table[,c(10:14, 16:17)] # select columns for pca analysis
 
-pca <- prcomp(pca.dat, center = T, scale. = T)
+pca <- prcomp(pca.dat, center = T, scale. = T) # run the pca
 
-summary(pca)
+summary(pca) # display the pca results in table format
 
 plot(pca)
 biplot(pca)
