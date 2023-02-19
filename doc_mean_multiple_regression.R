@@ -1,17 +1,21 @@
-#########################
+## ORGANISATION --------------
 ## Name: Matt Watkins
 ## Date: Jan 22nd/23
 ## Project: MSc data analysis
 ## Objective: Fit multiple regression to mean DOC
 ## Inputs: glfc chemistry; doc_table excel sheet; ws_table excel sheet
 ## Outputs: model fits; ggplot regressions
-#########################
+## ---------------------------
 
 ## 0. NOTES ----
 
 ### 0.1 Set NA options here so dredge works throughout ----
 
 options(na.action = "na.fail")
+
+### 0.2 The best models as of right now, based on MuMIn dredge AICc criteria, are:
+### (1) log of drainage area, coniferous forest, open water and 10-year insect disturbance
+### (2) log of drainage area, coniferous forest, open water and 10-year insect disturbance, 10-year harvest
 
 ## 1. PREPARE ----
 
@@ -29,20 +33,22 @@ doc_table <- read_excel("~/Desktop/2020 Trent University/R/Thesis Data/MSc_data_
 
 ws_table <- read_excel("~/Desktop/2020 Trent University/R/Thesis Data/MSc_data_analysis/Watershed_table_v1.xlsx")
 
+water_chem <- readRDS("glfc_chem_cleaned_v1.01.rds")
+
 ## 3. TIDY // PROCESS ----
 
 mean_doc <- doc_table %>% 
   select(`Site name`, Mean) # mean DOC for main models
 
+doc_ws_table <- left_join(mean_doc, ws_table, by = "Site name") # (Part 1 - all sites)
+
 mean_doc_min67 <- doc_table %>% 
   filter(!`Site name` %in% "WS 67") %>% 
-  select(`Site name`, Mean) # mean DOC without WS 67 (Part 2 - no WS 67 (outlier))
-
-doc_ws_table <- left_join(mean_doc, ws_table, by = "Site name") # (Part 1 - all sites)
+  select(`Site name`, Mean) # mean DOC without WS 67 (Part 2 - no WS 67 (outlier)
 
 doc_sub_merge <- left_join(mean_doc_min67, ws_table, by = "Site name")
 
-### 3.01 - Run the model (all variables, all sites) ----
+### 3.01 - Part 1: Run the model (all variables, all sites) ----
   
 doc_mregression <- lm(Mean ~ `Drainage Area (km2)` + Latitude + Longitude + `Elevation (m a.s.l.)` + `Slope (degrees)` + `Wetland Cover (%)` + `Open Water (%)` + `Total Productive Forest (%)` + `Deciduous Forest (%)` + `Coniferous Forest (%)` + `5-year Harvest Disturbance (%)` + `5-year Insect Disturbance (%)` + `5-year Abiotic Disturbance (%)` + `10-year Harvest Disturbance (%)` + `10-year Insect Disturbance (%)` + `15-year Harvest Disturbance (%)` + `15-year Insect Disturbance (%)` + `15-year Wildfire Disturbance (%)` + `20-year Harvest Disturbance (%)` + `20-year Insect Disturbance (%)`, data = doc_ws_table)
 
@@ -188,7 +194,7 @@ chem %>%
   facet_wrap(~site) +
   geom_point()
 
-### 3.07 Part 2 - No WS 67 ############### ----
+### 3.07 Part 2: No WS 67 ############### ----
 
 #### 3.07.1 - Run the model (all variables, all sites) ----
 
@@ -223,7 +229,7 @@ doc_mreg_group <- lm(Mean ~ Group + log(`Drainage Area (km2)`) + `Slope (degrees
 
 summary(doc_mreg_group) # no group significance here
 
-### 3.08 - Part 3 Model selection with MuMIn, No WS 67 ----
+### 3.08 - Part 3: Model selection with MuMIn, No WS 67 ----
 
 no67_mtable1 <- dredge(doc_mreg_sub2, rank = "AICc") #1. the concise variable model
 
@@ -257,7 +263,7 @@ no67_mtable_group <- dredge(doc_mreg_group, rank = "AICc") #5. group variable in
 
 # No change as expected.
 
-### 3.09 - Part 4 Look at all individual predictors in separate models again ----
+### 3.09 - Part 4: Look at all individual predictors in separate models again ----
 
 summary(mod <- lm(Mean ~ Group, data = doc_sub_merge)) # harvest sig 0.02
 summary(mod <- lm(Mean ~ log(`Drainage Area (km2)`), data = doc_sub_merge)) # sig (0.016), log less sig (0.017)
@@ -285,6 +291,40 @@ summary(mod <- lm(Mean ~ `20-year Insect Disturbance (%)`, data = doc_sub_merge)
 summary(mod <- lm(Mean ~ `20-year Abiotic Disturbance (%)`, data = doc_sub_merge))
 
 # Definitely a bit more individual significance without WS 67 - 10- and 15-year insect disturbance become highly significant; others include open water, elevation, area and log of area, and harvest classification
+
+### 3.10 - Part 5: Individual sample campaign models ----
+
+doc <- water_chem %>% 
+  select(-glfc.id, -date) %>% 
+  filter(variable %in% "organic.carbon") %>% 
+  pivot_wider(names_from = "sample", values_from = "value") %>% 
+  select(-variable)
+
+colnames(doc) <- c("Site name", "catchment.id", "doc.s1", "doc.s2", "doc.s3", "doc.s4", "doc.s5", "doc.s6")
+
+sample_campaign_tbl <- left_join(doc, ws_table, by = "Site name") # Individual sample campaigns attached to ws table
+
+#### 3.10.1 - Run the concise model for each of the sample campaigns ----
+
+sc1_mreg_concise <- lm(doc.s1 ~ log(`Drainage Area (km2)`) + `Wetland Cover (%)` + `Open Water (%)` + `Coniferous Forest (%)` + `10-year Harvest Disturbance (%)` + `10-year Insect Disturbance (%)`, data = sample_campaign_tbl)
+
+summary(sc1_mreg_concise)
+check_model(sc1_mreg_concise)
+
+# Thoughts
+# Not the greatest model fit
+
+### 3.11 - Examining the best models ----
+
+mreg_best <- lm(Mean ~ log(`Drainage Area (km2)`) + `Open Water (%)` + `Coniferous Forest (%)` + `10-year Insect Disturbance (%)`, data = doc_ws_table)
+
+summary(mreg_best)
+check_model(mreg_best)
+
+mreg_2nd_best <- lm(Mean ~ log(`Drainage Area (km2)`) + `Open Water (%)` + `Coniferous Forest (%)` + `10-year Harvest Disturbance (%)` + `10-year Insect Disturbance (%)`, data = doc_ws_table)
+
+summary(mreg_2nd_best)
+check_model(mreg_2nd_best)
 
 ## 4. PLOTTING ----
 
