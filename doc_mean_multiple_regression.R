@@ -17,6 +17,10 @@ options(na.action = "na.fail")
 ### (1) log of drainage area, coniferous forest, open water and 10-year insect disturbance
 ### (2) log of drainage area, coniferous forest, open water and 10-year insect disturbance, 10-year harvest
 
+### 0.3 Can just bring in final standardised doc table now ----
+
+std_table <- readRDS("final_std_doc_table.rds")
+
 ## 1. PREPARE ----
 
 rm(list=ls())
@@ -297,12 +301,12 @@ summary(mod <- lm(Mean ~ `20-year Abiotic Disturbance (%)`, data = doc_sub_merge
 ### 3.10 - Part 5: Individual sample campaign models ----
 
 doc <- water_chem %>% 
-  select(-glfc.id, -date) %>% 
+  select(-glfc.id, -date, -catchment.id) %>% 
   filter(variable %in% "organic.carbon") %>% 
   pivot_wider(names_from = "sample", values_from = "value") %>% 
   select(-variable)
 
-colnames(doc) <- c("Site name", "catchment.id", "doc.s1", "doc.s2", "doc.s3", "doc.s4", "doc.s5", "doc.s6")
+colnames(doc) <- c("Site name", "doc.s1", "doc.s2", "doc.s3", "doc.s4", "doc.s5", "doc.s6")
 
 sample_campaign_tbl <- left_join(doc, ws_table, by = "Site name") # Individual sample campaigns attached to ws table
 
@@ -415,6 +419,10 @@ check_model(mreg_2nd_best)
 
 ## 5. SAVING // EXPORTING ----
 
+### 5.01 - Save merged standardised, sample campaign, mean DOC table
+
+saveRDS(standardised_ws_table, file = "final_std_doc_table.RDS")
+
 ## 6. TRIAL // JUNK CODE ----
 
 # Look at no 67 mean doc and wetland cover relationships
@@ -457,7 +465,14 @@ ws_table_std <- ws_table %>%
          insect15_st = zscore(`15-year Insect Disturbance (%)`),
          harv20_st = zscore(`20-year Wildfire Disturbance (%)`),
          insect20_st = zscore(`20-year Insect Disturbance (%)`))
+
+### Merge standardised variables, mean DOC and sample campaigns
          
-         
+colnames(mean_doc)[2] <- "mean.doc"
+
+mean_std_table <- left_join(mean_doc, ws_table_std, by = "Site name")
+
+standardised_ws_table <- left_join(mean_std_table, doc, by = "Site name")
+
          
 
