@@ -45,16 +45,16 @@ expl_plots <- function(x, y) {
 }
 
 ### 4.01 Total nitrogen ----
-total.n %>% 
-ggplot(aes(x = site, y = total.n)) +
+mean.chem %>% 
+ggplot(aes(x = site, y = mean.total.n)) +
   geom_point() # (1) look at mean total n, 67 sits highest; (2) look at variability and its range is similar to other sites (some lower values as well)
 
 ### 4.02 Sodium ----
 
-expl_plots(x = "site", y = "mean.sodium")
+expl_plots(x = "catchment.id", y = "Na")
 
 mean.chem %>% 
-  ggplot(aes(x = site, y = Na)) +
+  ggplot(aes(x = catchment.id, y = Na)) +
   geom_point() # (1)67 is heavily skewed by one extremely high sample - the rest fall right in line with other sites; (2) 92 is the other outlier and all of its other samples are higher than 67
 
 ### 4.03 Potassium ----
@@ -75,7 +75,12 @@ expl_plots(x = "site", y = "Cl") # just a single sample outlier skews this mean
 
 ### 4.07 Conductivity ----
 
-expl_plots(x = "site", y = "conductivity") # same thing, single huge outlier sample skews the mean for 67
+expl_plots(x = "catchment.id", y = "conductivity") # same thing, single huge outlier sample skews the mean for 67
+
+wide_chem %>% 
+  ggplot(aes(catchment.id, conductivity)) +
+  geom_point() +
+  ylim(0, 2500)
 
 
 

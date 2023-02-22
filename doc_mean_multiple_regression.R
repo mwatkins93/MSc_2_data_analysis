@@ -26,6 +26,8 @@ library(tidyverse)
 library(readxl)
 library(performance)
 library(MuMIn)
+library(mosaic)
+library(broom)
 
 ## 2. IMPORT ----
 
@@ -306,13 +308,96 @@ sample_campaign_tbl <- left_join(doc, ws_table, by = "Site name") # Individual s
 
 #### 3.10.1 - Run the concise model for each of the sample campaigns ----
 
-sc1_mreg_concise <- lm(doc.s1 ~ log(`Drainage Area (km2)`) + `Wetland Cover (%)` + `Open Water (%)` + `Coniferous Forest (%)` + `10-year Harvest Disturbance (%)` + `10-year Insect Disturbance (%)`, data = sample_campaign_tbl)
+sc1_mreg_concise <- lm(doc.s1 ~ log(`Drainage Area (km2)`) + `Wetland Cover (%)` + `Open Water (%)` + `Coniferous Forest (%)` + `10-year Harvest Disturbance (%)` + `10-year Insect Disturbance (%)`, data = sample_campaign_tbl) # Sample 1
 
 summary(sc1_mreg_concise)
 check_model(sc1_mreg_concise)
 
 # Thoughts
-# Not the greatest model fit
+# r2 = 0.69 Not the greatest model fit
+# Lots of significance: log(area) - extremely sig; open water (.03); coniferous (.001); 10-year harvest (.01); 10-year insect (.0016)
+
+sc2_mreg_concise <- lm(doc.s2 ~ log(`Drainage Area (km2)`) + `Wetland Cover (%)` + `Open Water (%)` + `Coniferous Forest (%)` + `10-year Harvest Disturbance (%)` + `10-year Insect Disturbance (%)`, data = sample_campaign_tbl) # Sample 2
+
+summary(sc2_mreg_concise)
+check_model(sc2_mreg_concise)
+
+# Thoughts
+# r2 = 0.67
+# 10-year harvest gets less significant
+
+sc3_mreg_concise <- lm(doc.s3 ~ log(`Drainage Area (km2)`) + `Wetland Cover (%)` + `Open Water (%)` + `Coniferous Forest (%)` + `10-year Harvest Disturbance (%)` + `10-year Insect Disturbance (%)`, data = sample_campaign_tbl) # Sample 3
+
+summary(sc3_mreg_concise)
+check_model(sc3_mreg_concise)
+
+# Thoughts
+# r2 = .74 - pretty good model fit for this campaign
+# Drainage area and 10-year insect becomes very significant here; wetland cover becomes quite significant here (.004); open water is not significant
+
+sc4_mreg_concise <- lm(doc.s4 ~ log(`Drainage Area (km2)`) + `Wetland Cover (%)` + `Open Water (%)` + `Coniferous Forest (%)` + `10-year Harvest Disturbance (%)` + `10-year Insect Disturbance (%)`, data = sample_campaign_tbl) # Sample 4
+
+summary(sc4_mreg_concise)
+check_model(sc4_mreg_concise)
+
+# Thoughts
+# r2 = 0.47 - pretty poor fit and low significance across the variables
+
+sc5_mreg_concise <- lm(doc.s5 ~ log(`Drainage Area (km2)`) + `Wetland Cover (%)` + `Open Water (%)` + `Coniferous Forest (%)` + `10-year Harvest Disturbance (%)` + `10-year Insect Disturbance (%)`, data = sample_campaign_tbl) # Sample 5
+
+summary(sc5_mreg_concise)
+check_model(sc5_mreg_concise)
+
+# Thoughts 
+# r2 = 0.63
+# Coniferous forest becomes very sig here, along with log(area) - which is consistently significant
+
+sc6_mreg_concise <- lm(doc.s6 ~ log(`Drainage Area (km2)`) + `Wetland Cover (%)` + `Open Water (%)` + `Coniferous Forest (%)` + `10-year Harvest Disturbance (%)` + `10-year Insect Disturbance (%)`, data = sample_campaign_tbl) # Sample 6
+
+summary(sc6_mreg_concise)
+check_model(sc6_mreg_concise)
+
+# Thoughts
+# r2 = .58 - fairly poor fit
+# Only generally higher significance across the board than campaign #4.
+
+#### 3.10.2 - Using the best AICc models to examine individual sample campaigns ----
+
+sc1_mreg_best <- lm(doc.s1 ~ log(`Drainage Area (km2)`) + `Open Water (%)` + `Coniferous Forest (%)` + `10-year Insect Disturbance (%)`, data = sample_campaign_tbl) # Sample 1
+
+summary(sc1_mreg_best)
+check_model(sc1_mreg_best)
+
+sc2_mreg_best <- lm(doc.s2 ~ log(`Drainage Area (km2)`) + `Open Water (%)` + `Coniferous Forest (%)` + `10-year Insect Disturbance (%)`, data = sample_campaign_tbl) # Sample 2
+
+summary(sc2_mreg_best)
+check_model(sc2_mreg_best)
+
+sc3_mreg_best <- lm(doc.s3 ~ log(`Drainage Area (km2)`) + `Open Water (%)` + `Coniferous Forest (%)` + `10-year Insect Disturbance (%)`, data = sample_campaign_tbl) # Sample 3
+
+summary(sc3_mreg_best)
+check_model(sc3_mreg_best)
+
+sc4_mreg_best <- lm(doc.s4 ~ log(`Drainage Area (km2)`) + `Open Water (%)` + `Coniferous Forest (%)` + `10-year Insect Disturbance (%)`, data = sample_campaign_tbl) # Sample 4
+
+summary(sc4_mreg_best)
+check_model(sc4_mreg_best)
+
+sc5_mreg_best <- lm(doc.s5 ~ log(`Drainage Area (km2)`) + `Open Water (%)` + `Coniferous Forest (%)` + `10-year Insect Disturbance (%)`, data = sample_campaign_tbl) # Sample 5
+
+summary(sc5_mreg_best)
+check_model(sc5_mreg_best)
+
+# Thoughts
+# Coniferous forest pops out here, highly significant
+
+sc6_mreg_best <- lm(doc.s6 ~ log(`Drainage Area (km2)`) + `Open Water (%)` + `Coniferous Forest (%)` + `10-year Insect Disturbance (%)`, data = sample_campaign_tbl) # Sample 6
+
+summary(sc6_mreg_best)
+check_model(sc6_mreg_best)
+
+# Thoughts
+# Open water becomes significant here
 
 ### 3.11 - Examining the best models ----
 
@@ -331,4 +416,48 @@ check_model(mreg_2nd_best)
 ## 5. SAVING // EXPORTING ----
 
 ## 6. TRIAL // JUNK CODE ----
+
+# Look at no 67 mean doc and wetland cover relationships
+
+doc_sub_merge %>% 
+  ggplot(aes(`Wetland Cover (%)`, Mean)) +
+  geom_point() # no real relationship here
+
+doc_sub_merge %>% 
+  ggplot(aes(`Elevation (m a.s.l.)`, Mean)) +
+  geom_point()
+
+### 6.01 Standardisation of predictor variables ---
+
+# 1. 5-year wildfire removed (0 sites)
+# 2. 10-year wildfire removed (1 site)
+# 3. 10-year abiotic - same as 5-year
+# 4. 15-year abiotic - same as 5-year
+# 5. 20-year abiotic - same as 5-year
+# 6. 20-year wildfire - the same percentage as 15-year wildfire
+
+ws_table_std <- ws_table %>% 
+  mutate(lat_st = zscore(Latitude),
+         long_st = zscore(Longitude),
+         drainage_st = zscore(`Drainage Area (km2)`),
+         elev_st = zscore(`Elevation (m a.s.l.)`),
+         slope_st = zscore(`Slope (degrees)`),
+         wetland_st = zscore(`Wetland Cover (%)`),
+         open_wat_st = zscore(`Open Water (%)`),
+         tprod_for_st = zscore(`Total Productive Forest (%)`),
+         decid_std = zscore(`Deciduous Forest (%)`),
+         conifer_st = zscore(`Coniferous Forest (%)`),
+         harv5_st = zscore(`5-year Harvest Disturbance (%)`),
+         insect5_st = zscore(`5-year Insect Disturbance (%)`),
+         abiotic5_st = zscore(`5-year Abiotic Disturbance (%)`),
+         harv10_st = zscore(`10-year Harvest Disturbance (%)`),
+         insect10_st = zscore(`10-year Insect Disturbance (%)`),
+         wildfire15_st = zscore(`15-year Wildfire Disturbance (%)`),
+         harv15_st = zscore(`15-year Harvest Disturbance (%)`),
+         insect15_st = zscore(`15-year Insect Disturbance (%)`),
+         harv20_st = zscore(`20-year Wildfire Disturbance (%)`),
+         insect20_st = zscore(`20-year Insect Disturbance (%)`))
+         
+         
+         
 
