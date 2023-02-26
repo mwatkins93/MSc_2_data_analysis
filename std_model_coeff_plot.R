@@ -9,6 +9,8 @@
 
 ## 0. NOTES ----
 
+options(na.action = "na.fail") # set for MuMIn dredge
+
 ## 1. PREPARE ----
 
 rm(list=ls())
@@ -75,6 +77,8 @@ plot(meanDOC_avg, full = NA, intercept = FALSE)
 
 ### 3.03 - Run model for sample campaign 1, 2, 3, 4, 5, 6
 
+options(na.action = "na.omit") # reset this so the campaigns with NAs work
+
 ### Sample 1
 sc1_model <- lm(doc.s1 ~ drainage_st + lat_st + slope_st + wetland_st + open_wat_st + tprod_for_st + conifer_st + harv5_st + insect5_st + harv10_st + wildfire15_st + harv15_st + insect15_st, data = standard_doc_tbl)
 
@@ -96,8 +100,11 @@ sc2_table <- dredge(sc2_model, rank = "AICc")
 
 sc2_goodmodels <- subset(sc2_table, delta <= 2, recalc.weights = FALSE)
 
-### Sample 3 - problematic due to NAs
-sc3_model <- lm(doc.s3 ~ drainage_st + lat_st + slope_st + wetland_st + open_wat_st + tprod_for_st + conifer_st + harv5_st + insect5_st + harv10_st + wildfire15_st + harv15_st + insect15_st, data = standard_doc_tbl)
+### Sample 3 - NAs become an issue here
+
+doc_s3_sub <- standard_doc_sub[-3, c(1:49, 52)] # subset to remove the NA value
+
+sc3_model <- lm(doc.s3 ~ drainage_st + lat_st + slope_st + wetland_st + open_wat_st + tprod_for_st + conifer_st + harv5_st + insect5_st + harv10_st + wildfire15_st + harv15_st + insect15_st, data = doc_s3_sub)
 
 summary(sc3_model)
 check_model(sc3_model)
@@ -106,18 +113,24 @@ sc3_table <- dredge(sc3_model, rank = "AICc")
 
 sc3_goodmodels <- subset(sc3_table, delta <= 2, recalc.weights = FALSE)
 
-### Sample 4 - problematic due to NAs
-sc4_model <- lm(doc.s4 ~ drainage_st + lat_st + slope_st + wetland_st + open_wat_st + tprod_for_st + conifer_st + harv5_st + insect5_st + harv10_st + wildfire15_st + harv15_st + insect15_st, data = standard_doc_tbl)
+### Sample 4
+
+doc_s4_sub <- standard_doc_sub[c(-3, -6), c(1:49, 53)]
+
+sc4_model <- lm(doc.s4 ~ drainage_st + lat_st + slope_st + wetland_st + open_wat_st + tprod_for_st + conifer_st + harv5_st + insect5_st + harv10_st + wildfire15_st + harv15_st + insect15_st, data = doc_s4_sub)
 
 summary(sc4_model)
-check_model(sc3_model)
+check_model(sc4_model)
 
 sc4_table <- dredge(sc4_model, rank = "AICc")
 
 sc4_goodmodels <- subset(sc4_table, delta <= 2, recalc.weights = FALSE)
 
-### Sample 5 - problematic due to NAs
-sc5_model <- lm(doc.s5 ~ drainage_st + lat_st + slope_st + wetland_st + open_wat_st + tprod_for_st + conifer_st + harv5_st + insect5_st + harv10_st + wildfire15_st + harv15_st + insect15_st, data = standard_doc_tbl)
+### Sample 5
+
+doc_s5_sub <- standard_doc_sub[-3, c(1:49, 54)]
+
+sc5_model <- lm(doc.s5 ~ drainage_st + lat_st + slope_st + wetland_st + open_wat_st + tprod_for_st + conifer_st + harv5_st + insect5_st + harv10_st + wildfire15_st + harv15_st + insect15_st, data = doc_s5_sub)
 
 summary(sc5_model)
 check_model(sc5_model)
@@ -146,7 +159,9 @@ sc6_goodmodels <- subset(sc6_table, delta <= 2, recalc.weights = FALSE)
 saveRDS(meanDOC_goodsupport, file = "mean_doc_std_models.rds")
 saveRDS(sc1_goodmodels, file = "sc1_doc_std_models.rds")
 saveRDS(sc2_goodmodels, file = "sc2_doc_std_models.rds")
-
+saveRDS(sc3_goodmodels, file = "sc3_doc_std_models.rds")
+saveRDS(sc4_goodmodels, file = "sc4_doc_std_models.rds")
+saveRDS(sc5_goodmodels, file = "sc6_doc_std_models.rds")
 saveRDS(sc6_goodmodels, file = "sc6_doc_std_models.rds")
 
 ## 6. TRIAL // JUNK CODE ----

@@ -11,7 +11,7 @@
 
 ### 0.1 Set NA options here so dredge works throughout ----
 
-options(na.action = "na.fail")
+options(na.action = "na.omit")
 
 ### 0.2 The best models as of right now, based on MuMIn dredge AICc criteria, are:
 ### (1) log of drainage area, coniferous forest, open water and 10-year insect disturbance
@@ -367,6 +367,8 @@ check_model(sc6_mreg_concise)
 
 #### 3.10.2 - Using the best AICc models to examine individual sample campaigns ----
 
+options(na.action = "na.omit") # because of some missing values, set na.action to omit
+
 sc1_mreg_best <- lm(doc.s1 ~ log(`Drainage Area (km2)`) + `Open Water (%)` + `Coniferous Forest (%)` + `10-year Insect Disturbance (%)`, data = sample_campaign_tbl) # Sample 1
 
 summary(sc1_mreg_best)
@@ -387,7 +389,7 @@ sc4_mreg_best <- lm(doc.s4 ~ log(`Drainage Area (km2)`) + `Open Water (%)` + `Co
 summary(sc4_mreg_best)
 check_model(sc4_mreg_best)
 
-sc5_mreg_best <- lm(doc.s5 ~ log(`Drainage Area (km2)`) + `Open Water (%)` + `Coniferous Forest (%)` + `10-year Insect Disturbance (%)`, data = sample_campaign_tbl) # Sample 5
+sc5_mreg_best <- lm(doc.s5 ~ log(`Drainage Area (km2)`) + `Open Water (%)` + `Coniferous Forest (%)` + `10-year Insect Disturbance (%)`, data = std_table) # Sample 5
 
 summary(sc5_mreg_best)
 check_model(sc5_mreg_best)
@@ -395,7 +397,7 @@ check_model(sc5_mreg_best)
 # Thoughts
 # Coniferous forest pops out here, highly significant
 
-sc6_mreg_best <- lm(doc.s6 ~ log(`Drainage Area (km2)`) + `Open Water (%)` + `Coniferous Forest (%)` + `10-year Insect Disturbance (%)`, data = sample_campaign_tbl) # Sample 6
+sc6_mreg_best <- lm(doc.s6 ~ log(`Drainage Area (km2)`) + `Open Water (%)` + `Coniferous Forest (%)` + `10-year Insect Disturbance (%)`, data = std_table) # Sample 6
 
 summary(sc6_mreg_best)
 check_model(sc6_mreg_best)
