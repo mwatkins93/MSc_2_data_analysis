@@ -61,10 +61,11 @@ summary(pca) # display the pca results in table format
 plot(pca)
 biplot(pca)
 
+# look at correlation 
+
+std_predictors <- standard_doc_tbl[34:53]
+
 pairs(std_predictors)
-
-std_predictors <- standard_doc_tbl[34:53] # look at correlation
-
 
 # Some definite redundancy here, for now choose from the following to refine:
 # 1. deciduous or coniferous (coniferous)
@@ -307,7 +308,15 @@ plot_grid(title, coef_pl_rd, ncol=1, rel_heights=c(0.1, 1))
 
 #### 4.09.2 - sjPlot variation ----
 
-sjplot <- plot_models(sc1_avg, sc2_avg, sc3_avg, sc4_avg, sc5_avg, sc6_avg, doc_avg, grid = TRUE, vline.color = "black", show.legend = FALSE)
+sjplot <- plot_models(doc_avg, sc6_avg, sc5_avg, sc4_avg, sc3_avg, sc2_avg, sc1_avg,
+                      grid = TRUE, 
+                      vline.color = "black", 
+                      show.legend = FALSE, 
+                      colors = "black",
+                      dot.size = 2,
+                      axis.title = "",
+                      m.labels = c("Mean DOC", "SC6", "SC5", "SC4", "SC3", "SC2", "SC1"),
+                      axis.labels = c("15-year Wildfire", "15-year Infestation", "5-year Infestation", "15-year Harvest", "10-year Harvest", "5-year Harvest", "Wetland", "Latitude", "Open Water", "Slope", "Total Productive Forest", "Catchment Area", "Coniferous"))
 
 sjplot +
   theme_sjplot2()
