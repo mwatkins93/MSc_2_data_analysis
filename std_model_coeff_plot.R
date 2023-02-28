@@ -19,6 +19,7 @@ sc3 <- readRDS("sc3_doc_std_models.rds")
 sc4 <- readRDS("sc4_doc_std_models.rds")
 sc5 <- readRDS("sc5_doc_std_models.rds")
 sc6 <- readRDS("sc6_doc_std_models.rds")
+mean_doc <- readRDS("mean_doc_std_models.rds")
 
 ## 1. PREPARE ----
 
@@ -167,10 +168,6 @@ sc6_table <- dredge(sc6_model, rank = "AICc")
 
 sc6_goodmodels <- subset(sc6_table, delta <= 2, recalc.weights = FALSE)
 
-### Put all the averages in a list
-
-avg.coeff.list <- list(sc1_avg, sc2_avg, sc3_avg, sc4_avg, sc5_avg, sc6_avg, meanDOC_avg)
-
 ### 3.04 - Extract averaged coefficients and merge into a new dataframe for better plotting ----
 
 #### 3.04.1 - sc1 coefficient attempt ----
@@ -243,6 +240,8 @@ modelplot(regr_model, coef_omit = 1) # this works and also removes the intercept
 meandoc_pl <- modelplot(meanDOC_avg, coef_omit = 1) +
   xlab("Mean DOC")
 
+doc_avg <- model.avg(mean_doc, fit = TRUE)
+
 ### 4.03 - Sample campaign 1 plot ----
 sc1_avg <- model.avg(sc1, fit = TRUE)
 
@@ -284,7 +283,13 @@ sc6_avg <- model.avg(sc6, fit = TRUE)
 sc6_pl <- modelplot(sc6_avg, coef_omit = 1) +
   xlab("Sample campaign 6")
 
+### Put all the averages in a list
+
+avg.coeff.list <- list(sc1_avg, sc2_avg, sc3_avg, sc4_avg, sc5_avg, sc6_avg, doc_avg)
+
 ### 4.09 - Try combining all of the plots ----
+
+#### 4.09.1 - 1st attempt ----
 
 coef_pl_rd <- plot_grid(meandoc_pl,
           sc1_pl,
@@ -300,9 +305,16 @@ title <- ggdraw() + draw_label("Averaged model coefficients with 95% confidence"
 
 plot_grid(title, coef_pl_rd, ncol=1, rel_heights=c(0.1, 1))
 
-plot_models(sc1_avg, sc2_avg, sc3_avg, sc4_avg, sc5_avg, sc6_avg, meanDOC_avg, grid = TRUE, colours = "bw")
+#### 4.09.2 - sjPlot variation ----
 
-dwplot(avg.coeff.list) %>%
+sjplot <- plot_models(sc1_avg, sc2_avg, sc3_avg, sc4_avg, sc5_avg, sc6_avg, doc_avg, grid = TRUE, vline.color = "black", show.legend = FALSE)
+
+sjplot +
+  theme_sjplot2()
+
+#### 4.09.3 - dotwhisker plot variation ----
+
+coeff_plot <- dwplot(avg.coeff.list) %>%
   relabel_predictors(c(
            conifer_st = "Coniferous",
            drainage_st = "Catchment Area",
@@ -311,15 +323,19 @@ dwplot(avg.coeff.list) %>%
            open_wat_st = "Open Water",
            lat_st = "Latitude",
            wetland_st = "Wetland",
-           harv5_st = "5-Year Harvest",
-           harv10_st = "10-Year Harvest",
-           harv15_st = "15-Year Harvest",
-           insect5_st = "5-Year Infestation",
-           insect15_st = "15-Year Infestation",
-           wildfire15_st = "15-Year Wildfire") + 
+           harv5_st = "5-year Harvest",
+           harv10_st = "10-year Harvest",
+           harv15_st = "15-year Harvest",
+           insect5_st = "5-year Infestation",
+           insect15_st = "15-year Infestation",
+           wildfire15_st = "15-year Wildfire")) +
   theme_bw() +
-  theme(legend.title = element_blank())) # this works for now, somehow need to customize it. We'll see what Jason says.
-  
+  theme(legend.title = element_blank()) +
+  geom_vline(xintercept = 0) +
+  scale_colour_manual(labels = c("SC1", "SC2", "SC3", "SC4", "SC5", "SC6", "Mean DOC"),
+                                 values = c("#99ccff", "#c4c1c6", "#005155", "#e9b22a", "#8c6d31", "#6600ff", "#000000"))
+
+coeff_plot # this works for now, somehow need to customize it. We'll see what Jason says.
 
 ### 4.02 - Averaged sample campaign and mean DOC coefficients on one plot
 
