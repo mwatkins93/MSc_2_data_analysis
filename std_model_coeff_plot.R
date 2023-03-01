@@ -11,16 +11,6 @@
 
 options(na.action = "na.fail") # set for MuMIn dredge
 
-### 0.1 Can load in good model support RDSs
-
-sc1 <- readRDS("sc1_doc_std_models.rds")
-sc2 <- readRDS("sc2_doc_std_models.rds")
-sc3 <- readRDS("sc3_doc_std_models.rds")
-sc4 <- readRDS("sc4_doc_std_models.rds")
-sc5 <- readRDS("sc5_doc_std_models.rds")
-sc6 <- readRDS("sc6_doc_std_models.rds")
-mean_doc <- readRDS("mean_doc_std_models.rds")
-
 ## 1. PREPARE ----
 
 rm(list=ls())
@@ -351,7 +341,7 @@ saveRDS(sc6_goodmodels, file = "sc6_doc_std_models.rds")
 
 ## 6. TRIAL // JUNK CODE ----
 
-### 6.01 Try and see what the coefplot does in MuMIn pkg
+### 6.01 - Try and see what the coefplot does in MuMIn pkg ----
 
 fm <- glm(Prop ~ dose + I(dose^2) + log(dose) + I(log(dose)^2),
           data = Beetle, family = binomial, na.action = na.fail)
@@ -368,4 +358,11 @@ plot(ma, full = NA, intercept = FALSE,
      pch = 22, dotcex = 1.5,
      col = clr[i], bg = clr[i],
      lwd = 6, lend = 1, width = 0, horizontal = 0)
+
+### 6.02 - Look at summary graph of best model for Mean DOC ----
+
+best_meanDOC <- lm(mean.doc ~ conifer_st + drainage_st + harv5_st + insect15_st + insect5_st + tprod_for_st, data = standard_doc_sub)
+
+summary(best_meanDOC)
+check_model(best_meanDOC)
 
