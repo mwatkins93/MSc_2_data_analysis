@@ -91,10 +91,7 @@ meanDOC_table <- dredge(regr_model, rank = "AICc")
 
 meanDOC_goodsupport <- subset(meanDOC_table, delta <= 2, recalc.weights=FALSE) # 14 models within 2 AICc, I need to retain these coefficients
 
-meanDOC_avg <- model.avg(meanDOC_goodsupport, fit = TRUE)
-
-modelplot(meanDOC_avg, coef_omit = 1) +
-  xlab("Averaged coefficient estimates for Mean DOC with 95% confidence")
+doc_avg <- model.avg(mean_doc, fit = TRUE)
 
 ### 3.03 - Run model for sample campaign 1, 2, 3, 4, 5, 6
 
@@ -110,6 +107,8 @@ sc1_table <- dredge(sc1_model, rank = "AICc")
 
 sc1_goodmodels <- subset(sc1_table, delta <= 2, recalc.weights = FALSE)
 
+sc1_avg <- model.avg(sc1_goodmodels, fit = TRUE)
+
 ### Sample 2
 sc2_model <- lm(doc.s2 ~ drainage_st + lat_st + slope_st + wetland_st + open_wat_st + tprod_for_st + conifer_st + harv5_st + insect5_st + harv10_st + wildfire15_st + harv15_st + insect15_st, data = standard_doc_tbl)
 
@@ -119,6 +118,8 @@ check_model(sc2_model)
 sc2_table <- dredge(sc2_model, rank = "AICc")
 
 sc2_goodmodels <- subset(sc2_table, delta <= 2, recalc.weights = FALSE)
+
+sc2_avg <- model.avg(sc2_goodmodels, fit = TRUE)
 
 ### Sample 3 - NAs become an issue here
 
@@ -133,6 +134,8 @@ sc3_table <- dredge(sc3_model, rank = "AICc")
 
 sc3_goodmodels <- subset(sc3_table, delta <= 2, recalc.weights = FALSE)
 
+sc3_avg <- model.avg(sc3_goodmodels, fit = TRUE)
+
 ### Sample 4
 
 doc_s4_sub <- standard_doc_sub[c(-3, -6), c(1:49, 53)]
@@ -145,6 +148,8 @@ check_model(sc4_model)
 sc4_table <- dredge(sc4_model, rank = "AICc")
 
 sc4_goodmodels <- subset(sc4_table, delta <= 2, recalc.weights = FALSE)
+
+sc4_avg <- model.avg(sc4_goodmodels, fit = TRUE)
 
 ### Sample 5
 
@@ -159,7 +164,9 @@ sc5_table <- dredge(sc5_model, rank = "AICc")
 
 sc5_goodmodels <- subset(sc5_table, delta <= 2, recalc.weights = FALSE)
 
-### Sample 6 - 
+sc5_avg <- model.avg(sc5_goodmodels, fit = TRUE)
+
+### Sample 6
 sc6_model <- lm(doc.s6 ~ drainage_st + lat_st + slope_st + wetland_st + open_wat_st + tprod_for_st + conifer_st + harv5_st + insect5_st + harv10_st + wildfire15_st + harv15_st + insect15_st, data = standard_doc_tbl)
 
 summary(sc6_model)
@@ -168,6 +175,12 @@ check_model(sc6_model)
 sc6_table <- dredge(sc6_model, rank = "AICc")
 
 sc6_goodmodels <- subset(sc6_table, delta <= 2, recalc.weights = FALSE)
+
+sc6_avg <- model.avg(sc6_goodmodels, fit = TRUE)
+
+#### 3.03.1 Put all the averages in a list ----
+
+avg.coeff.list <- list(sc1_avg, sc2_avg, sc3_avg, sc4_avg, sc5_avg, sc6_avg, doc_avg)
 
 ### 3.04 - Extract averaged coefficients and merge into a new dataframe for better plotting ----
 
@@ -236,57 +249,26 @@ doc_coeff_out <- doc_coeff_list %>% reduce(full_join, by = "variable") %>%
 
 modelplot(regr_model, coef_omit = 1) # this works and also removes the intercept - we don't need to see it
 
-### 4.02 - Averaged coefficients for Mean DOC ----
-
 meandoc_pl <- modelplot(meanDOC_avg, coef_omit = 1) +
-  xlab("Mean DOC")
-
-doc_avg <- model.avg(mean_doc, fit = TRUE)
-
-### 4.03 - Sample campaign 1 plot ----
-sc1_avg <- model.avg(sc1, fit = TRUE)
+  xlab("Mean DOC") # Mean DOC
 
 sc1_pl <- modelplot(sc1_avg, coef_omit = 1) +
-  xlab("Sample campaign 1")
-
-### 4.04 - Sample campaign 2 plot ----
-
-sc2_avg <- model.avg(sc2, fit = TRUE)
+  xlab("Sample campaign 1") # SC1
 
 sc2_pl <- modelplot(sc2_avg, coef_omit = 1) +
-  xlab("Sample campaign 2")
-
-### 4.05 - Sample campaign 3 plot ----
-
-sc3_avg <- model.avg(sc3, fit = TRUE)
+  xlab("Sample campaign 2") # SC2
 
 sc3_pl <- modelplot(sc3_avg, coef_omit = 1) +
-  xlab("Sample campaign 3")
-
-### 4.06 - Sample campaign 4 plot ----
-
-sc4_avg <- model.avg(sc4, fit = TRUE)
+  xlab("Sample campaign 3") # SC3
 
 sc4_pl <- modelplot(sc4_avg, coef_omit = 1) +
-  xlab("Sample campaign 4")
-
-### 4.07 - Sample campaign 5 plot ----
-
-sc5_avg <- model.avg(sc5, fit = TRUE)
+  xlab("Sample campaign 4") # SC4
 
 sc5_pl <- modelplot(sc5_avg, coef_omit = 1) +
-  xlab("Sample campaign 5")
-
-### 4.08 - Sample campaign 6 plot ----
-
-sc6_avg <- model.avg(sc6, fit = TRUE)
+  xlab("Sample campaign 5") # SC5
 
 sc6_pl <- modelplot(sc6_avg, coef_omit = 1) +
-  xlab("Sample campaign 6")
-
-### Put all the averages in a list
-
-avg.coeff.list <- list(sc1_avg, sc2_avg, sc3_avg, sc4_avg, sc5_avg, sc6_avg, doc_avg)
+  xlab("Sample campaign 6") # SC6
 
 ### 4.09 - Try combining all of the plots ----
 
