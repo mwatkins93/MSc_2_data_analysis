@@ -67,7 +67,7 @@ pairs(std_predictors)
 # Removing abiotic 5 since only 5 sites have data
 # Probably just keep 20-year harvest instead of 20-year and 15-year (similar enough, but harv20 has slightly higher %s for a few sites)
 
-### 3.02 - Remove those variables and run the model for mean DOC
+### 3.02 - Remove those variables and run the model for mean DOC ----
 
 standard_doc_sub <- standard_doc_tbl %>% 
   select(-decid_std, -long_st, -insect20_st, -elev_st)
@@ -81,9 +81,9 @@ meanDOC_table <- dredge(regr_model, rank = "AICc")
 
 meanDOC_goodsupport <- subset(meanDOC_table, delta <= 2, recalc.weights=FALSE) # 14 models within 2 AICc, I need to retain these coefficients
 
-doc_avg <- model.avg(mean_doc, fit = TRUE)
+doc_avg <- model.avg(meanDOC_goodsupport, fit = TRUE)
 
-### 3.03 - Run model for sample campaign 1, 2, 3, 4, 5, 6
+### 3.03 - Run model for sample campaign 1, 2, 3, 4, 5, 6 ----
 
 options(na.action = "na.omit") # reset this so the campaigns with NAs work
 
@@ -172,66 +172,75 @@ sc6_avg <- model.avg(sc6_goodmodels, fit = TRUE)
 
 avg.coeff.list <- list(sc1_avg, sc2_avg, sc3_avg, sc4_avg, sc5_avg, sc6_avg, doc_avg)
 
-### 3.04 - Extract averaged coefficients and merge into a new dataframe for better plotting ----
+### 3.04 - Base model and sensitivity analysis ----
 
-#### 3.04.1 - sc1 coefficient attempt ----
+#### 3.04.1 - Mean DOC ----
+mean_base_model <- lm(mean.doc ~ Group + conifer_st + drainage_st + elev_st + open_wat_st + wetland_st + slope_st, data = standard_doc_tbl)
 
-sc1_coeff <- as.data.frame(sc1_avg[[2]])
-  
-sc1_coeff_out <- sc1_coeff[-2, -1] %>% # take the full avg - based on model weight, which seems to be more accurate
-  pivot_longer(cols = 1:8, names_to = "variable", values_to = "sc1.coefficient")
+summary(mean_base_model)
+check_model(mean_base_model)
 
-#### Try sc2
-sc2_coeff <- as.data.frame(sc2_avg[[2]])
+mean_base_model_tbl <- dredge(mean_base_model, rank = "AICc")
 
-sc2_coeff_out <- sc2_coeff[-2, -1] %>%
-  pivot_longer(cols = 1:11, names_to = "variable", values_to = "sc2.coefficient")
+mean_base_model_avg <- model.avg(subset(mean_base_model_tbl, delta <= 2, recalc.weights=FALSE), fit = TRUE)
 
-#### Try joining to get the NAs back
+#### 3.04.2 - Sample campaign 1 ----
 
-coeff_join <- full_join(sc1_coeff_out, sc2_coeff_out, by = "variable") # this works, continue with 3:6 and mean
+sc1_base_model <- lm(doc.s1 ~ Group + conifer_st + drainage_st + elev_st + open_wat_st + wetland_st + slope_st, data = standard_doc_tbl)
 
-#### sc3
+sc1_base_table <- dredge(sc1_base_model, rank = "AICc")
 
-sc3_coeff <- as.data.frame(sc3_avg[[2]])
+sc1_base_model_avg <- model.avg(subset(sc1_base_table, delta <= 2, recalc.weights = FALSE), fit = TRUE)
 
-sc3_coeff_out <- sc3_coeff[-2, -1] %>%
-  pivot_longer(cols = 1:9, names_to = "variable", values_to = "sc3.coefficient")
-  
-#### sc4
+#### 3.04.3 - Sample campaign 2 ----
 
-sc4_coeff <- as.data.frame(sc4_avg[[2]])
+sc2_base_model <- lm(doc.s2 ~ Group + conifer_st + drainage_st + elev_st + open_wat_st + wetland_st + slope_st, data = standard_doc_tbl)
 
-sc4_coeff_out <- sc4_coeff[-2, -1] %>%
-  pivot_longer(cols = 1:7, names_to = "variable", values_to = "sc4.coefficient")
+sc2_base_table <- dredge(sc2_base_model, rank = "AICc")
 
-#### sc5
+sc2_base_model_avg <- model.avg(subset(sc2_base_table, delta <= 2, recalc.weights = FALSE), fit = TRUE)
 
-sc5_coeff <- as.data.frame(sc5_avg[[2]])
+#### 3.04.4 - Sample campaign 3 ----
 
-sc5_coeff_out <- sc5_coeff[-2, -1] %>%
-  pivot_longer(cols = 1:8, names_to = "variable", values_to = "sc5.coefficient")
+doc_s3_sub <- standard_doc_tbl[-3, c(1:53, 56)]
 
-#### sc6
+sc3_base_model <- lm(doc.s3 ~ Group + conifer_st + drainage_st + elev_st + open_wat_st + wetland_st + slope_st, data = doc_s3_sub)
 
-sc6_coeff <- as.data.frame(sc6_avg[[2]])
+sc3_base_table <- dredge(sc3_base_model, rank = "AICc")
 
-sc6_coeff_out <- sc6_coeff[-2, -1] %>%
-  pivot_longer(cols = 1:10, names_to = "variable", values_to = "sc6.coefficient")
+sc3_base_model_avg <- model.avg(subset(sc3_base_table, delta <= 2, recalc.weights = FALSE), fit = TRUE)
 
-#### mean DOC
+#### 3.04.5 - Sample campaign 4 ----
 
-meanDOC_coeff <- as.data.frame(meanDOC_avg[[2]])
+doc_s4_sub <- standard_doc_tbl[c(-3, -6), c(1:53, 57)]
 
-meanDOC_coeff_out <- meanDOC_coeff[-2, -1] %>%
-  pivot_longer(cols = 1:11, names_to = "variable", values_to = "meandoc.coefficient")
+sc4_base_model <- lm(doc.s4 ~ Group + conifer_st + drainage_st + elev_st + open_wat_st + wetland_st + slope_st, data = doc_s4_sub)
 
-#### Merge into a new dataframe
+sc4_base_table <- dredge(sc4_base_model, rank = "AICc")
 
-doc_coeff_list <- list(sc1_coeff_out, sc2_coeff_out, sc3_coeff_out, sc4_coeff_out, sc5_coeff_out, sc6_coeff_out, meanDOC_coeff_out) # put dfs in list so I can reduce them to one
+sc4_base_model_avg <- model.avg(subset(sc4_base_table, delta <= 2, recalc.weights = FALSE), fit = TRUE)
 
-doc_coeff_out <- doc_coeff_list %>% reduce(full_join, by = "variable") %>% 
-  pivot_longer(cols = 2:8, names_to = "campaign", values_to = "avg.coefficient")
+#### 3.04.6 - Sample campaign 5 ----
+
+doc_s5_sub <- standard_doc_tbl[-3, c(1:53, 58)]
+
+sc5_base_model <- lm(doc.s5 ~ Group + conifer_st + drainage_st + elev_st + open_wat_st + wetland_st + slope_st, data = doc_s5_sub)
+
+sc5_base_table <- dredge(sc5_base_model, rank = "AICc")
+
+sc5_base_model_avg <- model.avg(subset(sc5_base_table, delta <= 2, recalc.weights = FALSE), fit = TRUE)
+
+#### 3.04.7 - Sample campaign 6 ----
+
+sc6_base_model <- lm(doc.s6 ~ Group + conifer_st + drainage_st + elev_st + open_wat_st + wetland_st + slope_st, data = standard_doc_tbl)
+
+sc6_base_table <- dredge(sc6_base_model, rank = "AICc")
+
+sc6_base_model_avg <- model.avg(subset(sc6_base_table, delta <= 2, recalc.weights = FALSE), fit = TRUE)
+
+#### 3.04.8 - Attach all base model averages ----
+
+base_model_avgs <- list(sc1_base_model_avg, sc2_base_model_avg, sc3_base_model_avg, sc4_base_model_avg, sc5_base_model_avg, sc6_base_model_avg, mean_base_model_avg)
 
 ## 4. PLOTTING ----
 
@@ -260,9 +269,9 @@ sc5_pl <- modelplot(sc5_avg, coef_omit = 1) +
 sc6_pl <- modelplot(sc6_avg, coef_omit = 1) +
   xlab("Sample campaign 6") # SC6
 
-### 4.09 - Try combining all of the plots ----
+### 4.02 - Try combining all of the plots ----
 
-#### 4.09.1 - 1st attempt ----
+#### 4.02.1 - 1st attempt ----
 
 coef_pl_rd <- plot_grid(meandoc_pl,
           sc1_pl,
@@ -278,7 +287,7 @@ title <- ggdraw() + draw_label("Averaged model coefficients with 95% confidence"
 
 plot_grid(title, coef_pl_rd, ncol=1, rel_heights=c(0.1, 1))
 
-#### 4.09.2 - sjPlot variation ----
+#### 4.02.2 - sjPlot variation ----
 
 sjplot <- plot_models(doc_avg, sc6_avg, sc5_avg, sc4_avg, sc3_avg, sc2_avg, sc1_avg,
                       grid = TRUE, 
@@ -287,38 +296,32 @@ sjplot <- plot_models(doc_avg, sc6_avg, sc5_avg, sc4_avg, sc3_avg, sc2_avg, sc1_
                       colors = "black",
                       dot.size = 2,
                       axis.title = "",
-                      m.labels = c("Mean DOC", "SC6", "SC5", "SC4", "SC3", "SC2", "SC1"),
-                      axis.labels = c("15-year Wildfire", "15-year Infestation", "5-year Infestation", "15-year Harvest", "10-year Harvest", "5-year Harvest", "Wetland", "Latitude", "Open Water", "Slope", "Total Productive Forest", "Catchment Area", "Coniferous"))
+                      m.labels = c("Mean DOC", "SC6", "SC5", "SC4", "SC3", "SC2", "SC1"))
+                      #axis.labels = c("15-year Wildfire", "15-year Infestation", "5-year Infestation", "15-year Harvest", "10-year Harvest", "5-year Harvest", "Wetland", "Latitude", "Open Water", "Slope", "Total Productive Forest", "Catchment Area", "Coniferous"))
 
 sjplot +
   theme_sjplot2()
 
-#### 4.09.3 - dotwhisker plot variation ----
+#### 4.02.3 - dotwhisker plot variation ----
 
-coeff_plot <- dwplot(avg.coeff.list) %>%
+mean_base_model_plot <- dwplot(base_model_avgs) %>%
   relabel_predictors(c(
            conifer_st = "Coniferous",
            drainage_st = "Catchment Area",
-           tprod_for_st = "Total Productive Forest",
            slope_st = "Slope",
            open_wat_st = "Open Water",
-           lat_st = "Latitude",
            wetland_st = "Wetland",
-           harv5_st = "5-year Harvest",
-           harv10_st = "10-year Harvest",
-           harv15_st = "15-year Harvest",
-           insect5_st = "5-year Infestation",
-           insect15_st = "15-year Infestation",
-           wildfire15_st = "15-year Wildfire")) +
+           elev_st = "Elevation",
+           Group = "Classification")) +
   theme_bw() +
   theme(legend.title = element_blank()) +
   geom_vline(xintercept = 0) +
   scale_colour_manual(labels = c("SC1", "SC2", "SC3", "SC4", "SC5", "SC6", "Mean DOC"),
                                  values = c("#99ccff", "#c4c1c6", "#005155", "#e9b22a", "#8c6d31", "#6600ff", "#000000"))
 
-coeff_plot # this works for now, somehow need to customize it. We'll see what Jason says.
+mean_base_model_plot # view plot
 
-### 4.02 - Averaged sample campaign and mean DOC coefficients on one plot
+### 4.03 - Averaged sample campaign and mean DOC coefficients on one plot ----
 
 doc_coeff_out  %>%
   ggplot(aes(x = avg.coefficient, y = variable)) +
@@ -340,6 +343,9 @@ saveRDS(sc5_goodmodels, file = "sc5_doc_std_models.rds")
 saveRDS(sc6_goodmodels, file = "sc6_doc_std_models.rds")
 
 ## 6. TRIAL // JUNK CODE ----
+
+# scale_colour_manual(labels = c("SC1", "SC2", "SC3", "SC4", "SC5", "SC6", "Mean DOC"),
+                    values = c("#99ccff", "#c4c1c6", "#005155", "#e9b22a", "#8c6d31", "#6600ff", "#000000")) # save for redoing plots later
 
 ### 6.01 - Try and see what the coefplot does in MuMIn pkg ----
 
