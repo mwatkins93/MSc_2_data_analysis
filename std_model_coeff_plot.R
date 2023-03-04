@@ -180,7 +180,7 @@ doc_tbl_no_c3 <- standard_doc_tbl %>%
   filter(!`Catchment ID` %in% "C3") # df with removal of C3
 
 #### 3.04.1 - Mean DOC ----
-mean_base_model <- lm(mean.doc ~ Group + conifer_st + decid_std + tprod_for_st + drainage_st + elev_st + open_wat_st + wetland_st + slope_st, data = standard_doc_tbl)
+mean_base_model <- lm(mean.doc ~ Group + conifer_st + drainage_st + elev_st + open_wat_st + wetland_st + slope_st + harv15_st, data = standard_doc_tbl)
 
 # summary(mean_base_model)
 # check_model(mean_base_model)
@@ -191,7 +191,7 @@ mean_base_model_avg <- model.avg(subset(mean_base_model_tbl, delta <= 2, recalc.
 
 #### 3.04.2 - Sample campaign 1 ----
 
-sc1_base_model <- lm(doc.s1 ~ Group + conifer_st + decid_std + tprod_for_st + drainage_st + elev_st + open_wat_st + wetland_st + slope_st, data = standard_doc_tbl)
+sc1_base_model <- lm(doc.s1 ~ Group + conifer_st + drainage_st + elev_st + open_wat_st + wetland_st + slope_st + harv15_st, data = standard_doc_tbl)
 
 sc1_base_table <- dredge(sc1_base_model, rank = "AICc")
 
@@ -199,7 +199,7 @@ sc1_base_model_avg <- model.avg(subset(sc1_base_table, delta <= 2, recalc.weight
 
 #### 3.04.3 - Sample campaign 2 ----
 
-sc2_base_model <- lm(doc.s2 ~ Group + conifer_st + decid_std + tprod_for_st + drainage_st + elev_st + open_wat_st + wetland_st + slope_st, data = standard_doc_tbl)
+sc2_base_model <- lm(doc.s2 ~ Group + conifer_st + drainage_st + elev_st + open_wat_st + wetland_st + slope_st + harv15_st, data = standard_doc_tbl)
 
 sc2_base_table <- dredge(sc2_base_model, rank = "AICc")
 
@@ -209,7 +209,7 @@ sc2_base_model_avg <- model.avg(subset(sc2_base_table, delta <= 2, recalc.weight
 
 doc_s3_sub <- standard_doc_tbl[-3, c(1:53, 56)]
 
-sc3_base_model <- lm(doc.s3 ~ Group + conifer_st + decid_std + tprod_for_st + drainage_st + elev_st + open_wat_st + wetland_st + slope_st, data = doc_s3_sub)
+sc3_base_model <- lm(doc.s3 ~ Group + conifer_st + drainage_st + elev_st + open_wat_st + wetland_st + slope_st + harv15_st, data = doc_s3_sub)
 
 sc3_base_table <- dredge(sc3_base_model, rank = "AICc")
 
@@ -219,7 +219,7 @@ sc3_base_model_avg <- model.avg(subset(sc3_base_table, delta <= 2, recalc.weight
 
 doc_s4_sub <- standard_doc_tbl[c(-3, -6), c(1:53, 57)]
 
-sc4_base_model <- lm(doc.s4 ~ Group + conifer_st + decid_std + tprod_for_st + drainage_st + elev_st + open_wat_st + wetland_st + slope_st, data = doc_s4_sub)
+sc4_base_model <- lm(doc.s4 ~ Group + conifer_st + drainage_st + elev_st + open_wat_st + wetland_st + slope_st + harv15_st, data = doc_s4_sub)
 
 sc4_base_table <- dredge(sc4_base_model, rank = "AICc")
 
@@ -229,7 +229,7 @@ sc4_base_model_avg <- model.avg(subset(sc4_base_table, delta <= 2, recalc.weight
 
 doc_s5_sub <- standard_doc_tbl[-3, c(1:53, 58)]
 
-sc5_base_model <- lm(doc.s5 ~ Group + conifer_st + decid_std + tprod_for_st + drainage_st + elev_st + open_wat_st + wetland_st + slope_st, data = doc_s5_sub)
+sc5_base_model <- lm(doc.s5 ~ Group + conifer_st + drainage_st + elev_st + open_wat_st + wetland_st + slope_st + harv15_st, data = doc_s5_sub)
 
 sc5_base_table <- dredge(sc5_base_model, rank = "AICc")
 
@@ -237,7 +237,7 @@ sc5_base_model_avg <- model.avg(subset(sc5_base_table, delta <= 2, recalc.weight
 
 #### 3.04.7 - Sample campaign 6 ----
 
-sc6_base_model <- lm(doc.s6 ~ Group + conifer_st + decid_std + tprod_for_st + drainage_st + elev_st + open_wat_st + wetland_st + slope_st, data = standard_doc_tbl)
+sc6_base_model <- lm(doc.s6 ~ Group + conifer_st + drainage_st + elev_st + open_wat_st + wetland_st + slope_st + harv15_st, data = standard_doc_tbl)
 
 sc6_base_table <- dredge(sc6_base_model, rank = "AICc")
 
@@ -321,9 +321,11 @@ mean_base_model_plot <- dwplot(base_model_avgs) %>%
            elev_st = "Elevation",
            GroupHarvest = "Harvest Class",
            GroupInsect = "Insect Class",
-           GroupMixed = "Mixed Class")) +
+           GroupMixed = "Mixed Class",
+           harv20_st = "20-year Harvest",
+           harv15_st = "15-year Harvest")) +
   theme_bw() +
-  labs(title = "Average multiple regression coefficients - coniferous + deciduous + total productive forest") +
+  labs(title = "Average multiple regression coefficients - 15-year Harvest") +
   theme(legend.title = element_blank(), plot.title = element_text(hjust = 0.5, face="bold")) +
   geom_vline(xintercept = 0) +
   scale_colour_manual(labels = c("SC1", "SC2", "SC3", "SC4", "SC5", "SC6", "Mean DOC"),
@@ -382,4 +384,29 @@ best_meanDOC <- lm(mean.doc ~ conifer_st + drainage_st + harv5_st + insect15_st 
 
 summary(best_meanDOC)
 check_model(best_meanDOC)
+
+### 6.03 - Quickly recheck the forest cover scatterplots ----
+
+standard_doc_tbl %>% 
+  ggplot(aes(x = `Total Productive Forest (%)`, y = `Deciduous Forest (%)`)) +
+  geom_point()
+
+# conifer and total productive forest = no real visual relationship
+# conifer and decid = negative relationship (as expected)
+# decid and total productive forest = slight positive relationship?
+
+cor(standard_doc_tbl$`Deciduous Forest (%)`, standard_doc_tbl$`Coniferous Forest (%)`, method = "spearman")
+
+# -0.20 conifer and total productive forest
+# 0.31 deciduous and total productive forest
+# -.58 conifer and deciduous
+
+### 6.04 - Look at harvest scatterplots and correlations ----
+
+standard_doc_tbl %>% 
+  ggplot(aes(x = `15-year Harvest Disturbance (%)`, y = `20-year Harvest Disturbance (%)`)) +
+  geom_point() # strong linearity
+
+cor(standard_doc_tbl$`20-year Harvest Disturbance (%)`, standard_doc_tbl$`15-year Harvest Disturbance (%)`, method = "spearman") # 0.86 - strongly correlated!
+
 
