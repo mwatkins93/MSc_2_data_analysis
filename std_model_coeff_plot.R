@@ -26,7 +26,7 @@ library(broom.mixed)
 library(modelsummary)
 library(dotwhisker)
 library(sjPlot)
-
+library(factoextra)
 
 ## 2. IMPORT ----
 
@@ -45,13 +45,14 @@ summary(pca) # display the pca results in table format
 plot(pca)
 biplot(pca)
 
-# Update the PCA to the remaining variables below and recheck redundancy
-
-pca.dat <- standard_doc_sub[,c(34:42, 44, 46:48)]
-pca <- prcomp(pca.dat, center = T, scale. = T) # run the pca
-summary(pca) # display the pca results in table format
-plot(pca)
-biplot(pca)
+fviz_pca_var(pca,
+             ggtheme = theme_gray(),
+             alpha.var=0.3,
+             col.var = "steelblue",
+             repel=TRUE,
+             title = "PCA - Predictor variables",
+             xlab = "PC1 (22.8%)",
+             ylab = "PC2 (17.6%")
 
 # look at correlation 
 
