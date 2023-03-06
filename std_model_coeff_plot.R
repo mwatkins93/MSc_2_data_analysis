@@ -181,7 +181,7 @@ doc_tbl_no_c3 <- standard_doc_tbl %>%
   filter(!`Catchment ID` %in% "C3") # df with removal of C3
 
 #### 3.04.1 - Mean DOC ----
-mean_base_model <- lm(mean.doc ~ Group + conifer_st + drainage_st + elev_st + open_wat_st + wetland_st + slope_st + insect20_st, data = standard_doc_tbl)
+mean_base_model <- lm(mean.doc ~ Group + conifer_st + drainage_st + elev_st + open_wat_st + wetland_st + slope_st + insect10_st, data = standard_doc_tbl)
 
 # summary(mean_base_model)
 # check_model(mean_base_model)
@@ -192,7 +192,7 @@ mean_base_model_avg <- model.avg(subset(mean_base_model_tbl, delta <= 2, recalc.
 
 #### 3.04.2 - Sample campaign 1 ----
 
-sc1_base_model <- lm(doc.s1 ~ Group + conifer_st + drainage_st + elev_st + open_wat_st + wetland_st + slope_st + insect20_st, data = standard_doc_tbl)
+sc1_base_model <- lm(doc.s1 ~ Group + conifer_st + drainage_st + elev_st + open_wat_st + wetland_st + slope_st + insect10_st, data = standard_doc_tbl)
 
 sc1_base_table <- dredge(sc1_base_model, rank = "AICc")
 
@@ -200,7 +200,7 @@ sc1_base_model_avg <- model.avg(subset(sc1_base_table, delta <= 2, recalc.weight
 
 #### 3.04.3 - Sample campaign 2 ----
 
-sc2_base_model <- lm(doc.s2 ~ Group + conifer_st + drainage_st + elev_st + open_wat_st + wetland_st + slope_st + insect20_st, data = standard_doc_tbl)
+sc2_base_model <- lm(doc.s2 ~ Group + conifer_st + drainage_st + elev_st + open_wat_st + wetland_st + slope_st + insect10_st, data = standard_doc_tbl)
 
 sc2_base_table <- dredge(sc2_base_model, rank = "AICc")
 
@@ -210,7 +210,7 @@ sc2_base_model_avg <- model.avg(subset(sc2_base_table, delta <= 2, recalc.weight
 
 doc_s3_sub <- standard_doc_tbl[-3, c(1:53, 56)]
 
-sc3_base_model <- lm(doc.s3 ~ Group + conifer_st + drainage_st + elev_st + open_wat_st + wetland_st + slope_st + insect20_st, data = doc_s3_sub)
+sc3_base_model <- lm(doc.s3 ~ Group + conifer_st + drainage_st + elev_st + open_wat_st + wetland_st + slope_st + insect10_st, data = doc_s3_sub)
 
 sc3_base_table <- dredge(sc3_base_model, rank = "AICc")
 
@@ -220,7 +220,7 @@ sc3_base_model_avg <- model.avg(subset(sc3_base_table, delta <= 2, recalc.weight
 
 doc_s4_sub <- standard_doc_tbl[c(-3, -6), c(1:53, 57)]
 
-sc4_base_model <- lm(doc.s4 ~ Group + conifer_st + drainage_st + elev_st + open_wat_st + wetland_st + slope_st + insect20_st, data = doc_s4_sub)
+sc4_base_model <- lm(doc.s4 ~ Group + conifer_st + drainage_st + elev_st + open_wat_st + wetland_st + slope_st + insect10_st, data = doc_s4_sub)
 
 sc4_base_table <- dredge(sc4_base_model, rank = "AICc")
 
@@ -230,7 +230,7 @@ sc4_base_model_avg <- model.avg(subset(sc4_base_table, delta <= 2, recalc.weight
 
 doc_s5_sub <- standard_doc_tbl[-3, c(1:53, 58)]
 
-sc5_base_model <- lm(doc.s5 ~ Group + conifer_st + drainage_st + elev_st + open_wat_st + wetland_st + slope_st + insect20_st, data = doc_s5_sub)
+sc5_base_model <- lm(doc.s5 ~ Group + conifer_st + drainage_st + elev_st + open_wat_st + wetland_st + slope_st + insect10_st, data = doc_s5_sub)
 
 sc5_base_table <- dredge(sc5_base_model, rank = "AICc")
 
@@ -238,7 +238,7 @@ sc5_base_model_avg <- model.avg(subset(sc5_base_table, delta <= 2, recalc.weight
 
 #### 3.04.7 - Sample campaign 6 ----
 
-sc6_base_model <- lm(doc.s6 ~ Group + conifer_st + drainage_st + elev_st + open_wat_st + wetland_st + slope_st + insect20_st, data = standard_doc_tbl)
+sc6_base_model <- lm(doc.s6 ~ Group + conifer_st + drainage_st + elev_st + open_wat_st + wetland_st + slope_st + insect10_st, data = standard_doc_tbl)
 
 sc6_base_table <- dredge(sc6_base_model, rank = "AICc")
 
@@ -327,9 +327,11 @@ mean_base_model_plot <- dwplot(base_model_avgs) %>%
            harv15_st = "15-year Harvest",
            harv10_st = "10-year Harvest",
            harv5_st = "5-year Harvest",
-           insect20_st = "20-year Infestation")) +
+           insect20_st = "20-year Infestation",
+           insect10_st = "10-year Infestation",
+           insect5_st = "5-year Infestation")) +
   theme_bw() +
-  labs(title = "Average multiple regression coefficients - 20-year Infestation") +
+  labs(title = "Average multiple regression coefficients - 10-year Infestation") +
   theme(legend.title = element_blank(), plot.title = element_text(hjust = 0.5, face="bold")) +
   geom_vline(xintercept = 0) +
   scale_colour_manual(labels = c("SC1", "SC2", "SC3", "SC4", "SC5", "SC6", "Mean DOC"),
