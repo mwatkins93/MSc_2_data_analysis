@@ -32,23 +32,24 @@ colours <- scale_fill_manual(values = c("#E69F00", "#56B4E9", "#009E73",
 
 ## 2. IMPORT ----
 
-glfc_data <- readRDS("/Volumes/MW/2020 Trent University/Data/GLFC Water Chemistry/glfc_data_v2.rds")
+glfc_data <- readRDS("glfc_data_v3.rds")
 
-watersheds <- read_xlsx("/Volumes/MW/2020 Trent University/R/Thesis Data/MSc_data_analysis/Watershed_table_v1.xlsx")
+watersheds <- read_xlsx("Watershed_table_v1.xlsx")
 
 ## 3. TIDY // PROCESS ----
 
 ws_prep <- watersheds %>% 
-  select(`Site name`, Group) # select only columns needed for adding group
+  select(`Site name`, `Drainage Area (km2)`) # select only columns needed for adding group
 
-colnames(ws_prep)[1:2] <- c("catchment", "group") # change column name to match
+colnames(ws_prep)[1] <- "site" # change column name to match
 
-ws_merge <- left_join(ws_prep, glfc_data, by = "catchment") # left join by the catchment column so groups are assigned
+ws_merge <- left_join(ws_prep, glfc_data, by = "site") # left join by the catchment column so groups are assigned
 
 ### 3.01 - Select necessary columns and multiple discharge by 1000 to get L/s
 
 glfc_orgC <- ws_merge %>% 
-  select(catchment, catchment.id, sample.number, sample.date, daily.discharge, organic.carbon, drainage.area, group) %>% 
+  pivot_wider(names_from = "variable", values_from = "value") %>% 
+  select(site, catchment.id, sample, date, daily.discharge, organic.carbon, `Drainage Area (km2)`) %>% 
   na.omit() %>% 
   mutate(discharge.litres = daily.discharge * 1000)
 
@@ -56,7 +57,7 @@ glfc_orgC <- ws_merge %>%
 
 inst_mass_flux <- glfc_orgC %>% 
   mutate(mass.time = daily.discharge * organic.carbon) %>% 
-  mutate(mass.time.area = mass.time / drainage.area)
+  mutate(mass.time.area = mass.time / `Drainage Area (km2)`)
 
 ### 3.03 - Only keep the sites with "good" Q status and not partial/poor that are left (SBC / WS 93)
 
