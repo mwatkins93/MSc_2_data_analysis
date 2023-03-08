@@ -13,6 +13,10 @@ options(na.action = "na.fail") # set for MuMIn dredge
 
 tprod_for_st
 
+### 0.1 - Solution for extracting best model only in certain cases!
+
+get.models(themodeltable, subset = 1)[[1]]
+
 ## 1. PREPARE ----
 
 rm(list=ls())
@@ -386,7 +390,7 @@ plot(ma, full = NA, intercept = FALSE,
 
 ### 6.02 - Look at summary graph of best model for Mean DOC ----
 
-best_meanDOC <- lm(mean.doc ~ conifer_st + drainage_st + harv5_st + insect15_st + insect5_st + tprod_for_st, data = standard_doc_sub)
+best_meanDOC <- lm(mean.doc ~ conifer_st + drainage_st + harv5_st + insect15_st + insect5_st + tprod_for_st, data = standard_doc_tbl)
 
 summary(best_meanDOC)
 check_model(best_meanDOC)
