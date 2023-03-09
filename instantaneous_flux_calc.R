@@ -38,7 +38,10 @@ ws_sub <- watersheds %>%
 
 colnames(ws_sub)[1] <- "site"
 
-q_merge <- left_join(ws_sub, q_estimates, by = "site")
+q_out <- q_estimates %>% 
+  filter(totalQ >= 0) # remove negative q estimates first
+
+q_merge <- left_join(ws_sub, q_out, by = "site")
 
 doc_merge <- left_join(q_merge, doc, by = c("site", "date"))
 
@@ -47,11 +50,28 @@ doc_merge <- left_join(q_merge, doc, by = c("site", "date"))
 inst_flux <- doc_merge %>% 
   mutate(discharge.litres = totalQ * 1000,
          inst.flux = discharge.litres * organic.carbon,
-         inst.flux.per.area = inst.flux / `Drainage Area (km2)`)
+         mg.s.area = inst.flux / `Drainage Area (km2)`) %>% 
+  na.omit()
+
+### 3.02 - Rearrange as wide data for model
+
+inst_flux_wide <- inst_flux %>% 
+  select(site, sample, mg.s.area) %>% 
+  pivot_wider(names_from = sample, values_from = mg.s.area)
+
+colnames(inst_flux_wide)[1:7] <- c("Site name", "inst.flux.1", "inst.flux.2", "inst.flux.3", "inst.flux.4", "inst.flux.5", "inst.flux.6")
+
+### 3.03 - Attach this to the final doc table
+
+final_doc_tbl <- left_join(inst_flux_wide, final_std_doc_table, by = "Site name")
 
 ## 4. PLOTTING ----
 
 ## 5. SAVING // EXPORTING ----
+
+saveRDS(inst_flux_wide, file = "inst_flux_calcs.rds")
+
+saveRDS(final_doc_tbl, file = "final_doc_tbl.rds")
 
 ## 6. TRIAL // JUNK CODE ----
 
