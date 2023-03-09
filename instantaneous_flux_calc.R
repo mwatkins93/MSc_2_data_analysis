@@ -50,8 +50,7 @@ doc_merge <- left_join(q_merge, doc, by = c("site", "date"))
 inst_flux <- doc_merge %>% 
   mutate(discharge.litres = totalQ * 1000,
          inst.flux = discharge.litres * organic.carbon,
-         mg.s.area = inst.flux / `Drainage Area (km2)`) %>% 
-  na.omit()
+         mg.s.area = inst.flux / `Drainage Area (km2)`)
 
 ### 3.02 - Rearrange as wide data for model
 
@@ -68,6 +67,8 @@ final_doc_tbl <- left_join(inst_flux_wide, final_std_doc_table, by = "Site name"
 ## 4. PLOTTING ----
 
 ## 5. SAVING // EXPORTING ----
+
+saveRDS(inst_flux, file = "inst_flux_steps.rds")
 
 saveRDS(inst_flux_wide, file = "inst_flux_calcs.rds")
 
