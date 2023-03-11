@@ -25,6 +25,8 @@ watersheds <- read_excel("Watershed_table_v1.xlsx")
 
 glfc_chem <- readRDS("glfc_chem_cleaned_v1.01.rds")
 
+final_doc_tbl <- readRDS("final_doc_tbl.rds")
+
 ## 3. TIDY // PROCESS ----
 
 ### 3.01 - Merge and clean the dataframes ----
@@ -50,19 +52,23 @@ doc_merge <- left_join(q_merge, doc, by = c("site", "date"))
 inst_flux <- doc_merge %>% 
   mutate(discharge.litres = totalQ * 1000,
          inst.flux = discharge.litres * organic.carbon,
-         mg.s.area = inst.flux / `Drainage Area (km2)`)
+         mg.s.area = inst.flux / `Drainage Area (km2)`,
+         log.mg.s.area = log(mg.s.area)) %>% 
+  na.omit()
 
 ### 3.02 - Rearrange as wide data for model
 
 inst_flux_wide <- inst_flux %>% 
-  select(site, sample, mg.s.area) %>% 
-  pivot_wider(names_from = sample, values_from = mg.s.area)
+  select(site, sample, log.mg.s.area) %>% 
+  pivot_wider(names_from = sample, values_from = log.mg.s.area)
 
 colnames(inst_flux_wide)[1:7] <- c("Site name", "inst.flux.1", "inst.flux.2", "inst.flux.3", "inst.flux.4", "inst.flux.5", "inst.flux.6")
 
 ### 3.03 - Attach this to the final doc table
 
-final_doc_tbl <- left_join(inst_flux_wide, final_std_doc_table, by = "Site name")
+final_doc <- final_doc_tbl[, -c(2:7)]
+
+final_doc_tbl <- left_join(inst_flux_wide, final_doc, by = "Site name")
 
 ## 4. PLOTTING ----
 
