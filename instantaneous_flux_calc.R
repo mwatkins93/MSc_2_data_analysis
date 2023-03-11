@@ -78,7 +78,14 @@ saveRDS(inst_flux, file = "inst_flux_steps.rds")
 
 saveRDS(inst_flux_wide, file = "inst_flux_calcs.rds")
 
-saveRDS(final_doc_tbl, file = "final_doc_tbl.rds")
+saveRDS(final_doc_tbl, file = "final_doc_arranged.rds")
 
 ## 6. TRIAL // JUNK CODE ----
+
+### 6.01 - log transform, standardise and move column
+
+final_doc_arranged <- final_doc_tbl %>% 
+  select(-drainage_st) %>% 
+  mutate(drainage_st = zscore(log(`Drainage Area (km2)`))) %>% 
+  relocate(drainage_st, .before = elev_st)
 
