@@ -9,7 +9,12 @@
 
 ## 0. NOTES ----
 
-### 0.1 - Solution for extracting best model only in certain cases!
+## 0.1 No C3 dataframe ----
+
+no_c3 <- doc_table %>% 
+  filter(!`Catchment ID` %in% "C3") # df with removal of C3
+
+### 0.2 - Solution for extracting best model only in certain cases!
 
 get.models(themodeltable, subset = 1)[[1]]
 
@@ -63,6 +68,8 @@ if3_base_model <- lm(inst.flux.3 ~ Group + conifer_st + drainage_st + elev_st + 
 if3_base_table <- dredge(if3_base_model, rank = "AICc")
 
 if3_base_model_avg <- model.avg(subset(if3_base_table, delta <= 2, recalc.weights = FALSE), fit = TRUE)
+
+# if3_base_model_avg <- get.models(if3_base_table, subset = 1)[[1]]
 
 #### 3.04.5 - inst flux 4 ----
 
@@ -134,12 +141,9 @@ if_base_model_plot
 
 ## 6. TRIAL // JUNK CODE ----
 
-no_c3 <- doc_table %>% 
-  filter(!`Catchment ID` %in% "C3") # df with removal of C3
-
 ### 6.01 - Check model requirements for each instantaneous flux campaign
 
-check_model(if6_base_model)
+check_model(if1_base_model)
 
 # Base model:
 # the base model for instantaneous flux 1 is awful (C3 is the problem)
