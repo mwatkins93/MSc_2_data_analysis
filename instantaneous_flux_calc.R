@@ -98,9 +98,10 @@ inst_flux_gr3 <- doc_data[, c(1:7)] %>%
 ### 4.01 - Group scatterplots ----
 
 inst_flux_gr3 %>% 
-  ggplot(aes(x = `WS 84`, y = `WS 87`)) +
+  ggplot(aes(x = `WS 110`, y = `WS 87`)) +
   geom_point() +
-  geom_smooth(method = lm, se = FALSE)
+  geom_smooth(method = lm, se = FALSE) +
+  geom_abline(slope = 1)
 
 # Group 1: nothing really here
 # Group 2: nothing really here
