@@ -2,12 +2,16 @@
 ## Name: Matt Watkins
 ## Date: Mar. 7th '23
 ## Project: MSc data analysis
-## Objective: instantaneous mass fluxes for all 30 sites
+## Objective: instantaneous mass fluxes for the 26 sites that have data
 ## Inputs:
 ## Outputs:
 ## ----------------------
 
 ## 0. NOTES ----
+
+### 0.1 - Just bring in final doc table here ----
+
+doc_data <- readRDS("final_doc_tbl.rds")
 
 ## 1. PREPARE ----
 
@@ -56,7 +60,7 @@ inst_flux <- doc_merge %>%
          log.mg.s.area = log(mg.s.area)) %>% 
   na.omit()
 
-### 3.02 - Rearrange as wide data for model
+### 3.03 - Rearrange as wide data for model ----
 
 inst_flux_wide <- inst_flux %>% 
   select(site, sample, log.mg.s.area) %>% 
@@ -64,13 +68,44 @@ inst_flux_wide <- inst_flux %>%
 
 colnames(inst_flux_wide)[1:7] <- c("Site name", "inst.flux.1", "inst.flux.2", "inst.flux.3", "inst.flux.4", "inst.flux.5", "inst.flux.6")
 
-### 3.03 - Attach this to the final doc table
+### 3.03 - Attach this to the final doc table ----
 
 final_doc <- final_doc_tbl[, -c(2:7)]
 
 final_doc_tbl <- left_join(inst_flux_wide, final_doc, by = "Site name")
 
+### 3.04 - Investigate if disturbed sites in close proximity to control sites have higher instantaneous loads ----
+
+#### 3.05 - Group 1 ----
+
+inst_flux_gr1 <- doc_data[, c(1:7)] %>% 
+  filter(`Site name` %in% c("WS 36", "WS 66", "WS 67", "WS BL1", "WS BL2", "WS 40")) %>% 
+  pivot_longer(cols = 2:7, names_to = "variable", values_to = "value") %>% 
+  pivot_wider(names_from = "Site name", values_from = "value")
+
+inst_flux_gr2 <- doc_data[, c(1:7)] %>% 
+  filter(`Site name` %in% c("WS 73", "WS BL1", "WS BL2")) %>% 
+  pivot_longer(cols = 2:7, names_to = "variable", values_to = "value") %>% 
+  pivot_wider(names_from = "Site name", values_from = "value")
+
+inst_flux_gr3 <- doc_data[, c(1:7)] %>% 
+  filter(`Site name` %in% c("WS 110", "WS 87", "WS 84")) %>% 
+  pivot_longer(cols = 2:7, names_to = "variable", values_to = "value") %>% 
+  pivot_wider(names_from = "Site name", values_from = "value")
+
 ## 4. PLOTTING ----
+
+### 4.01 - Group scatterplots ----
+
+inst_flux_gr3 %>% 
+  ggplot(aes(x = `WS 84`, y = `WS 87`)) +
+  geom_point() +
+  geom_smooth(method = lm, se = FALSE)
+
+# Group 1: nothing really here
+# Group 2: nothing really here
+# Group 3: 110 and 87 looks like ~1; 84 and 87 looks like 1
+
 
 ## 5. SAVING // EXPORTING ----
 
