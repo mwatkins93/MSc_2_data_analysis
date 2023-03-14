@@ -43,7 +43,7 @@ doc_table <- readRDS("final_doc_tbl.rds")
 
 #### 3.04.1 - inst flux 1 ----
 
-if1_base_model <- lm(inst.flux.1 ~ Group + conifer_st + decid_st + tprod_for_st + drainage_st + elev_st + wetland_st + open_wat_st + slope_st, data = no_c3)
+if1_base_model <- lm(inst.flux.1 ~ Group + conifer_st + harv10_st + drainage_st + elev_st + wetland_st + open_wat_st + slope_st, data = no_c3)
 
 if1_base_table <- dredge(if1_base_model, rank = "AICc")
 
@@ -53,7 +53,7 @@ if1_base_model_avg <- model.avg(subset(if1_base_table, delta <= 2, recalc.weight
 
 if2_sub <- no_c3[-3, ]
 
-if2_base_model <- lm(inst.flux.2 ~ Group + conifer_st + decid_st + tprod_for_st + drainage_st + elev_st + wetland_st + open_wat_st + slope_st, data = if2_sub)
+if2_base_model <- lm(inst.flux.2 ~ Group + conifer_st + harv10_st + drainage_st + elev_st + wetland_st + open_wat_st + slope_st, data = if2_sub)
 
 if2_base_table <- dredge(if2_base_model, rank = "AICc")
 
@@ -63,7 +63,7 @@ if2_base_model_avg <- model.avg(subset(if2_base_table, delta <= 2, recalc.weight
 
 if3_sub <- no_c3[c(-3, -6), ]
 
-if3_base_model <- lm(inst.flux.3 ~ Group + conifer_st + decid_st + tprod_for_st + drainage_st + elev_st + wetland_st + open_wat_st + slope_st, data = if3_sub)
+if3_base_model <- lm(inst.flux.3 ~ Group + conifer_st + harv10_st + drainage_st + elev_st + wetland_st + open_wat_st + slope_st, data = if3_sub)
 
 if3_base_table <- dredge(if3_base_model, rank = "AICc")
 
@@ -75,7 +75,7 @@ if3_base_model_avg <- get.models(if3_base_table, subset = 1)[[1]]
 
 if4_sub <- no_c3[c(-3, -6, -12, -22), ]
 
-if4_base_model <- lm(inst.flux.4 ~ Group + conifer_st + decid_st + tprod_for_st + drainage_st + elev_st + wetland_st + open_wat_st + slope_st, data = if4_sub)
+if4_base_model <- lm(inst.flux.4 ~ Group + conifer_st + harv10_st + drainage_st + elev_st + wetland_st + open_wat_st + slope_st, data = if4_sub)
 
 if4_base_table <- dredge(if4_base_model, rank = "AICc")
 
@@ -85,7 +85,7 @@ if4_base_model_avg <- model.avg(subset(if4_base_table, delta <= 2, recalc.weight
 
 if5_sub <- no_c3[-3, ]
 
-if5_base_model <- lm(inst.flux.5 ~ Group + conifer_st + decid_st + tprod_for_st + drainage_st + elev_st + wetland_st + open_wat_st + slope_st, data = if5_sub)
+if5_base_model <- lm(inst.flux.5 ~ Group + conifer_st + harv10_st + drainage_st + elev_st + wetland_st + open_wat_st + slope_st, data = if5_sub)
 
 if5_base_table <- dredge(if5_base_model, rank = "AICc")
 
@@ -95,7 +95,7 @@ if5_base_model_avg <- model.avg(subset(if5_base_table, delta <= 2, recalc.weight
 
 if6_sub <- no_c3[c(-3, -5, -12, -17, -18, -22, -24), ]
 
-if6_base_model <- lm(inst.flux.6 ~ Group + conifer_st + decid_st + tprod_for_st + drainage_st + elev_st + wetland_st + open_wat_st + slope_st, data = if6_sub)
+if6_base_model <- lm(inst.flux.6 ~ Group + conifer_st + harv10_st + drainage_st + elev_st + wetland_st + open_wat_st + slope_st, data = if6_sub)
 
 if6_base_table <- dredge(if6_base_model, rank = "AICc")
 
@@ -128,7 +128,7 @@ inst_flux_base_model_plot <- dwplot(inst_flux_base_model_avgs) %>%
     insect10_st = "10-year Infestation",
     insect5_st = "5-year Infestation")) +
   theme_bw() +
-  labs(title = "Averaged instantaneous flux coefficients - coniferous + deciduous + total productive forest") +
+  labs(title = "Averaged instantaneous flux coefficients - 10-year harvest") +
   theme(legend.title = element_blank(), plot.title = element_text(hjust = 0.5, face="bold")) +
   geom_vline(xintercept = 0) +
   scale_colour_manual(labels = c("IF1", "IF2", "IF3", "IF4", "IF5", "IF6"),
