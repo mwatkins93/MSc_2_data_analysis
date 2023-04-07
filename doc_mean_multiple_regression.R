@@ -455,7 +455,7 @@ ws_table_std <- ws_table %>%
          wetland_st = zscore(`Wetland Cover (%)`),
          open_wat_st = zscore(`Open Water (%)`),
          tprod_for_st = zscore(`Total Productive Forest (%)`),
-         decid_std = zscore(`Deciduous Forest (%)`),
+         decid_st = zscore(`Deciduous Forest (%)`),
          conifer_st = zscore(`Coniferous Forest (%)`),
          harv5_st = zscore(`5-year Harvest Disturbance (%)`),
          insect5_st = zscore(`5-year Insect Disturbance (%)`),

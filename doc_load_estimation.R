@@ -145,21 +145,20 @@ ws66_out %>%
 
 #colnames(mass_loads)[4, 6, 8] <- c("maximum", "minimum", "linear interpolation")
 
-ml_test <- mass_loads %>%
-  select(-`linear regression (kg C/km^2/season)`, -`linear interpolation (kg C/km^2/season)`, -`maximum (kg C/km^2/season)`, -`minimum (kg C/km^2/season)`) %>%  # remove unfinished regression and kg/season columns
-  pivot_longer(cols = 3:6,
+ml_test <- mass_loads[, -c(3, 5, 7, 9, 10)] %>% 
+  pivot_longer(cols = 3:5,
              names_to = "calculation",
              values_to = "doc") # pivot to allow for multiple wide columns to be plotted
 
-ml_test$calculation <- factor(ml_test$calculation, levels = c("maximum (g C/m^2/season)", "linear regression (g C/m^2/season)", "linear interpolation (g C/m^2/season)", "minimum (g C/m^2/season)")) # reorder factors for better legend order
+ml_test$calculation <- factor(ml_test$calculation, levels = c("maximum (g C/m^2/season)", "linear interpolation (g C/m^2/season)", "minimum (g C/m^2/season)")) # reorder factors for better legend order
 
 ml_test %>% 
   ggplot(aes(x = catchment.id, y = doc)) +
   geom_point(aes(colour = calculation, shape = calculation), size = 2) +
   geom_line(aes(group = catchment.id), alpha = .5) +
-  theme(axis.text.x=element_text(angle = 45, vjust = 0.5), legend.title = element_blank(), plot.title = element_text(hjust = 0.5)) + labs(x = "", y = expression(paste("Seasonal DOC mass load " ("g C"/m^2/season)))) +
-  scale_color_manual(labels = c("Maximum", "Linear regression", "Linear interpolation", "Minimum"), values = c("#56B4E9", "#CC79A7", "#009E73", "#E69F00")) +
-  scale_shape_manual(labels = c("Maximum", "Linear regression", "Linear interpolation", "Minimum"), values = c(17, 18, 16, 15)) +
+  theme(axis.text.x=element_text(angle = 45, vjust = 0.5), legend.title = element_blank(), plot.title = element_text(hjust = 0.5)) + labs(x = "", y = expression(paste("DOC mass load " ("g C"/m^2/season)))) +
+  scale_color_manual(labels = c("Maximum", "Linear interpolation", "Minimum"), values = c("#56B4E9", "#009E73", "#E69F00")) +
+  scale_shape_manual(labels = c("Maximum", "Linear interpolation", "Minimum"), values = c(17, 16, 15)) +
   scale_x_discrete(limits = c("C2", "C4", "C8", "C9", "C12", "C14", "H2", "H3", "I2", "I3", "I4", "M3", "M4", "M5", "M6"))
 
 ### 4.02.2 Same graph but kilograms per entire field season

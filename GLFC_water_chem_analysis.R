@@ -74,6 +74,9 @@ glfc_suva <- glfc_data_wide %>%
 glfc_long <- glfc_suva %>% 
   pivot_longer(cols = 7:51, names_to = "variable", values_to = "value")
 
+suva_sub <- glfc_suva %>% 
+  select(site, catchment.id, type, suva)
+
 
 
 ### 3.04 ---- Integrate landscape variables and disturbance percentages ----
@@ -178,16 +181,22 @@ glfc_data$sample.number <- str_remove_all(glfc_data$sample.number, "0")
 
 ### 4.01 - Basic DOC and SUVA plots ----
 
-doc <- glfc_data %>% 
-  ggplot(aes(x = type, y = `Organic Carbon`, fill = type)) +
+glfc_data
+
+doc <- glfc_suva %>% 
+  ggplot(aes(x = type, y = organic.carbon, fill = type)) +
   geom_boxplot(outlier.shape = NA) +
   geom_jitter() +
   theme_classic(base_size = 16) +
   scale_y_log10() +
   theme(axis.text.x=element_text(angle = 45, vjust = 0.5), legend.position = "none", plot.title = element_text(hjust = 0.5)) +
-  labs(x = "", y = "DOC (ppm)")
+  scale_x_discrete(labels = doc_labels) +
+  labs(x = "", y = "DOC (mg/L)")
 
 doc + colours # mean doc across catchment types
+
+# change x-axis ticks for doc plot
+doc_labels <- c("Control (14)", "Harvest (4)", "Insect (6)", "Mixed (6)")
 
 doc_season <- glfc_data %>% 
   ggplot(aes(sample.number, `Organic Carbon`, fill = type)) +
@@ -202,11 +211,13 @@ doc_season <- glfc_data %>%
 
 doc_season # how does doc vary across the study period
 
-suva <- glfc_data %>% 
+suva <- glfc_suva %>% 
   ggplot(aes(x = type, y = suva, fill = type)) +
   geom_boxplot(outlier.shape = NA) +
   geom_jitter() +
+  theme_bw() +
   theme_classic(base_size = 16) +
+  scale_y_log10() +
   theme(axis.text.x=element_text(angle = 45, vjust = 0.5), legend.position = "none", plot.title = element_text(hjust = 0.5)) +
   labs(x = "", y = "SUVA (L/mg-C/m)")
 
@@ -217,7 +228,8 @@ doc_suva_lin <- glfc_data %>%
   geom_point() +
   geom_jitter() +
   theme_classic(base_size = 16) +
-  theme(axis.text.x=element_text(angle = 45, vjust = 0.5), plot.title = element_text(hjust = 0.5)) +
+  theme(axis.text.x = element_text(angle = 45, vjust = 0.5),
+        plot.title = element_text(hjust = 0.5)) +
   labs(x = "DOC (ppm)", y = "SUVA (L/mg-C/m)")
 
 doc_suva_lin + scale_colour_manual(values = c("#E69F00", "#56B4E9", "#009E73", 
@@ -444,3 +456,53 @@ p <- ggplot() +
   theme(axis.text.x=element_text(angle = 45, vjust = 0.5), legend.position = "none", plot.title = element_text(hjust = 0.5)) + labs(x = "", y = "DOC (mg/L)")
 
 p
+
+
+############## Suva seasonality plot ----
+
+glfc_data_wide <- glfc_datOut %>% 
+  pivot_wider(names_from = variable, values_from = value)
+
+glfc_suva <- glfc_data_wide %>% 
+  mutate(suva = (a254 / 2.302585) / organic.carbon)
+
+glfc_long <- glfc_suva %>%
+  pivot_longer(cols = 7:52, names_to = "variable", values_to = "value") %>% 
+  filter(variable %in% "suva")
+  
+suva_plot <- glfc_suva %>% 
+  ggplot(aes(sample, suva, fill = type)) +
+  geom_boxplot(outlier.shape = NA) +
+  scale_fill_manual(values = c("#E69F00", "#56B4E9", "#009E73", 
+                                        "#F0E442")) +
+                                          scale_shape_manual(values = c(18, 16, 17, 5)) +
+  theme_bw() +
+  theme_classic(base_size = 16) +
+  scale_y_log10() +
+  theme(axis.text.x=element_text(angle = 45, vjust = 0.5), legend.position="none", plot.title = element_text(hjust = 0.5)) + 
+  labs(x = " ", y = "SUVA (L/mg-C/m)") +
+  facet_wrap(~ type) +
+  scale_x_discrete(labels = suva_over_time_labels)
+
+suva_plot + ylim(2.5, 6)
+
+# x-axis ticks for the above plot
+
+suva_over_time_labels <- c("June (S1)", "July (S2)", "July (S3)", "Aug. (S4)", "Sept. (S5)", "Oct. (S6)")
+
+# percent of suva values between 2 and 4 and > 4
+
+sum(glfc_suva$suva >= 2.0 & glfc_suva$suva <= 4.0) # 72
+
+sum(glfc_suva$suva > 4.0) # 102
+
+72/176
+
+104/176
+
+range(glfc_suva$organic.carbon)
+
+### 6.02 - DOC / SUVA relationship
+
+glfc_suva %>% 
+  ggplot(aes)

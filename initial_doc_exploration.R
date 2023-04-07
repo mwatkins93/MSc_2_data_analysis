@@ -19,6 +19,8 @@ theme(legend.title=element_blank()) +
 scale_colour_manual(values = c("#E69F00", "#56B4E9", "#009E73", 
                                  "#F0E442"))
 
+
+theme_update(text = element_text(size=20))
 ## 1. PREPARE ----
 
 rm(list=ls())
@@ -26,12 +28,17 @@ options(stringsASfactors = FALSE, scipen = 999, encoding = "UTF-8")
 
 library(tidyverse)
 library(readxl)
+library(cowplot)
+library(grid)
+library(gridExtra)
+
+theme_update(text = element_text(size=20))
 
 ## 2. IMPORT ----
 
 chem <- readRDS("glfc_chem_cleaned_v1.01.RDS")
 
-watershed_table <- read_excel("/Volumes/MW/2020 Trent University/R/Thesis Data/MSc_data_analysis/Watershed_table_v1.xlsx")
+watershed_table <- read_excel("Watershed_table_v1.xlsx")
 
 doc_export <- read_excel("doc_load_estimates.xlsx")
 
@@ -77,37 +84,35 @@ doc %>%
 
 ### 4.1.1 - DOC and catchment area ----
 
-ws_doc %>% 
+doc_area_pl <- ws_doc %>% 
   ggplot(aes(`Drainage Area (km2)`, mean.doc)) +
-  #geom_text(hjust = 0, vjust = 0) +
   geom_point(aes(colour = Group),  size = 2) +
   scale_x_log10() +
+  theme_bw(base_size = 20) +
   geom_errorbar(aes(ymin = mean.doc - doc.sd, ymax = mean.doc + doc.sd)) +
-  theme(legend.title=element_blank()) +
   scale_colour_manual(values = c("#E69F00", "#56B4E9", "#009E73", 
                         "#F0E442")) +
   labs(x = expression(paste("Drainage Area ", (km^2))), y = "DOC (mg/L)") +
-  geom_smooth(method='lm', formula= y~x, se = FALSE)
+  theme(legend.title= element_blank())
+
+doc_area_pl
 
 # add labels - label = catchment.id
 
 ### 4.1.2 - DOC and slope ----
 
-ws_doc %>% 
+doc_slope_pl <- ws_doc %>% 
   ggplot(aes(`Slope (degrees)`, mean.doc)) +
-  #geom_text(hjust = 0, vjust = 0) +
-  geom_smooth(method = "lm", formula = y~x, se = FALSE) +
   geom_point(aes(colour = Group),  size = 2) +
-  theme(legend.title=element_blank()) +
+  theme_bw() +
   scale_colour_manual(values = c("#E69F00", "#56B4E9", "#009E73", 
                                  "#F0E442")) +
   geom_errorbar(aes(ymin = mean.doc - doc.sd, ymax = mean.doc + doc.sd)) +
   xlab(expression("Slope " ( degree))) +
-  labs(y = "DOC (mg/L)")
+  labs(y = "DOC (mg/L)") +
+  theme(legend.title= element_blank())
 
 ### 4.1.3 - DOC and latitude ----
-
-
 
 ws_doc %>% 
 ggplot(aes(Latitude, mean.doc)) +
@@ -145,7 +150,7 @@ ws_doc %>%
 
 ### 4.1.6 - DOC and open water ----
 
-ws_doc%>% 
+ws_doc %>% 
   ggplot(aes(`Open Water (%)`, mean.doc)) +
   geom_point(aes(colour = Group),  size = 2) +
   theme(legend.title=element_blank()) +
@@ -157,15 +162,15 @@ ws_doc%>%
 
 ### 4.1.7 - DOC and wetland ----
 
-ws_doc %>%  
+doc_wetland_pl <- ws_doc %>%  
   ggplot(aes(`Wetland Cover (%)`, mean.doc)) +
   geom_point(aes(colour = Group),  size = 2) +
-  theme(legend.title=element_blank()) +
+  theme_bw() +
   scale_colour_manual(values = c("#E69F00", "#56B4E9", "#009E73", 
                                  "#F0E442")) +
-  geom_smooth(method = "lm", formula = y~x, se = FALSE) +
   geom_errorbar(aes(ymin = mean.doc - doc.sd, ymax = mean.doc + doc.sd)) +
-  labs(x = "Wetland (%)", y = "DOC (mg/L)")
+  labs(x = "Wetland cover (%)", y = "DOC (mg/L)") +
+  theme(legend.title= element_blank())
 
 ### 4.1.8 - DOC and deciduous ----
 
@@ -181,26 +186,15 @@ ws_doc %>%
 
 ### 4.1.9 - DOC and conifer ----
 
-ws_doc %>% 
+doc_conifer_pl <- ws_doc %>% 
   ggplot(aes(`Coniferous Forest (%)`, mean.doc)) +
   geom_point(aes(colour = Group),  size = 2) +
-  theme(legend.title=element_blank()) +
+  theme_bw() +
   scale_colour_manual(values = c("#E69F00", "#56B4E9", "#009E73", 
                                  "#F0E442")) +
-  geom_smooth(method = "lm", formula = y~x, se = FALSE) +
   geom_errorbar(aes(ymin = mean.doc - doc.sd, ymax = mean.doc + doc.sd)) +
-  labs(x = "Coniferous forest cover (%)", y = "DOC (mg/L)")
-
-### 4.1.10 - DOC and mixed tree coverage ----
-
-mixed <- ws_doc[ws_doc$variable.x == "Mixed Forest (%)", ]
-
-mixed %>% 
-  ggplot(aes(value.x, mean.doc)) +
-  geom_point() +
-  geom_smooth(method = "lm", formula = y~x, se = FALSE) +
-  geom_errorbar(aes(ymin = mean.doc - doc.sd, ymax = mean.doc + doc.sd)) +
-  labs(x = "Mixed tree cover (%)", y = "DOC (mg/L)")
+  labs(x = "Coniferous forest cover (%)", y = "DOC (mg/L)") +
+  theme(legend.title= element_blank())
 
 ### 4.1.11 - DOC and total productive forest ----
 
@@ -268,12 +262,12 @@ ws_export %>%
 ws_export %>% 
   ggplot(aes(`Coniferous Forest (%)`, `linear interpolation (g C/m^2/season)`)) +
   geom_point(aes(colour = Group),  size = 2) +
-  theme(legend.title=element_blank()) +
+  theme_bw() +
   scale_colour_manual(values = c("#E69F00", "#56B4E9", "#009E73", 
                                  "#F0E442")) +
   geom_errorbar(aes(ymin = `minimum (g C/m^2/season)`, ymax = `maximum (g C/m^2/season)`)) +
   labs(x = "Coniferous forest (%)", y = expression(paste("DOC export ", ("g C"/m^2/"season")))) +
-  geom_smooth(method='lm', formula= y~x, se = FALSE)
+  theme(legend.title= element_blank())
 
 ### 4.2.6 = Export and deciduous forest cover
 
@@ -292,6 +286,19 @@ ws_export %>%
 
 ## 6. TRIAL // JUNK CODE ----
 
-range(doc$value)
+### GG arrange all plots
 
-mean(doc$value)
+figure1 <- ggarrange(doc_area_pl + theme(axis.title.y = element_blank()),
+                     doc_conifer_pl + theme(axis.text.y = element_blank(),
+                                            axis.ticks.y = element_blank(),
+                                            axis.title.y = element_blank()),
+                     doc_slope_pl + theme(axis.title.y = element_blank()),
+                     doc_wetland_pl + theme(axis.text.y = element_blank(),
+                                            axis.ticks.y = element_blank(),
+                                            axis.title.y = element_blank()),
+                     labels = NULL,
+                     common.legend = TRUE,
+                     legend = "bottom",
+                     align = "h")
+
+annotate_figure(figure1, left = textGrob("DOC (mg/L)", rot = 90, hjust = 0.1, gp = gpar(cex = 1.3)))

@@ -7,12 +7,28 @@
 ## Outputs: exploratory plots for water quality
 ####-------------------------
 
+uw_suva <- uw_chem %>%
+  mutate(suva = (UV254 / doc) * 100)
+
+uw_suva_means <- uw_suva %>%
+  group_by(site) %>% 
+  mutate(mean.suva = mean(suva))
+
+ws <- read_excel("Watershed_table_v1.xlsx")
+
+ws_area <- ws %>% 
+  select(`Site name`, `Catchment ID`, `Drainage Area (km2)`)
+
+colnames(ws_area)[1] <- "site"
+
+uw_suva_area <- left_join(ws_area, uw_suva_means, by = "site")
+
 ## 0. Notes
 ##---------------------------
 
 # Main purpose of this script is to explore the DOC and THM-FP concentrations between sites
 
-### 0.01 - Nov. 9th update: add type column with catchment types and re-save for future use
+### - 0.1 - Nov. 9th update: add type column with catchment types and re-save for future use
 
 uw_chem_dat <- uw_chem_wide %>% 
   mutate(type = case_when(site == "WS 11" ~ "Mixed",
@@ -23,6 +39,10 @@ uw_chem_dat <- uw_chem_wide %>%
                           site == "WS 52" ~ "Insect",
                           site == "WS 66" ~ "Control",
                           site == "WS 96" ~ "Control"))
+
+### - 0.2 - Just bring in cleaned RDS file now
+
+uw_chem <- readRDS("uw_chem_cleaned_v1.03.rds")
 
 ## 1. Prepare
 ##---------------------------
@@ -53,7 +73,7 @@ ggpubr::show_point_shapes()
 
 water_chem <- read_xlsx("/Volumes/MW/2020 Trent University/Data/UW-DBP-FP/DBP-FP_Report-BS-Fall_2021_v1.xlsx")
 
-uw_chem <- readRDS("uw_chem_cleaned_v1.02.RDS")
+uw_chem <- readRDS("uw_chem_cleaned_v1.03.RDS")
 
 ## 3. Tidy / Process
 ##---------------------------
@@ -232,17 +252,16 @@ ref_doc_thm_plot <- water_chem_v5 %>%
 
 ref_doc_thm_plot
 
-### Treatment
-
-dist_doc_thm_plot <- water_chem_v5 %>% 
-  filter(site.id %in% c("WS 87", "WS 82", "WS 52", "WS SBC", "WS 11", "WS 17")) %>% 
-  ggplot(aes(x = `DOC [ppm]`, y = `THMsFP [μg/L]`, colour = type, shape = type)) +
+### Disturbed sites
+dist_doc_thm_plot <- uw_chem %>% 
+  filter(site %in% c("WS 87", "WS 82", "WS 52", "WS SBC", "WS 11", "WS 17")) %>% 
+  ggplot(aes(x = doc, y = `thm-fp`, colour = type, shape = type)) +
   geom_point(size = 3) +
   scale_colour_manual(values = c("#0072B2", "#D55E00", "#CC79A7")) +
   geom_jitter() +
   theme_classic(base_size = 16) +
   theme(axis.text.x=element_text(angle = 45, vjust = 0.5), legend.title = element_blank(), plot.title = element_text(hjust = 0.5)) + 
-  labs(x = "DOC (ppm)", y = "THM-FP (μg/L)")
+  labs(x = "DOC (mg/L)", y = "THM-FP (μg/L)")
 
 dist_doc_thm_plot
 
@@ -277,8 +296,22 @@ dist_suva_thm_plot <- water_chem_v5 %>%
 dist_suva_thm_plot
 
 
+### DOC - HAA-FP
+
+dist_doc_haa_plot <- uw_chem %>% 
+  filter(site %in% c("WS 87", "WS 82", "WS 52", "WS SBC", "WS 11", "WS 17")) %>% 
+  ggplot(aes(x = doc, y = `haa-fp`, colour = type, shape = type)) +
+  geom_point(size = 3) +
+  scale_colour_manual(values = c("#0072B2", "#D55E00", "#CC79A7")) +
+  geom_jitter() +
+  theme_classic(base_size = 16) +
+  theme(axis.text.x=element_text(angle = 45, vjust = 0.5), legend.title = element_blank(), plot.title = element_text(hjust = 0.5)) + 
+  labs(x = "DOC (mg/L)", y = "HAA-FP (μg/L)")
+
+dist_doc_haa_plot
+
+
 ### 4.6 - Plot landscape characteristics ----
-###################################
 
 ### 4.6.1 - DOC landscape variables ----
 
@@ -424,10 +457,7 @@ suva_season
 
 ### 4.7.3 - THM-FP
 
-uw_chem_wide <- uw_chem %>% 
-  pivot_wider(names_from = "variable", values_from = "value")
-
-thm_season <- uw_chem_wide %>% 
+uw_chem %>% 
   ggplot(aes(date, `THMsFP [μg/L]`, fill = type)) +
   geom_boxplot(outlier.shape = NA) +
   scale_fill_manual(values = c("#E69F00", "#56B4E9", "#009E73", 
@@ -485,13 +515,78 @@ uw_chem_dat %>%
 ## 6. Notes / Junk Code
 ##---------------------------
 
-colour8 <- scale_colour_manual(values = c("#000000", "#0072B2", "#D55E00", "#CC79A7", "#E69F00", "#56B4E9", "#009E73", 
-                               "#F0E442"))
+uw_suva_area %>% 
+  ggplot(aes(x = `Drainage Area (km2)`, y = mean.suva)) +
+  geom_point() +
+  scale_x_log10() +
+  geom_smooth(method = "lm", se = FALSE) # Potentially negative relationship?
 
-show_point_shapes()
+## DOC - HAA all site
 
-SUVA (L/mg-C/m)
+doc_haa_plot <- uw_chem %>% 
+  ggplot(aes(x = doc, y = `haa-fp`, colour = type)) +
+  geom_point(size = 3) +
+  scale_colour_manual(values = c("#E69F00", "#56B4E9", "#009E73", 
+                                          "#F0E442")) +
+  geom_jitter() +
+  theme_bw(base_size = 16) +
+  theme(axis.text.x=element_text(angle = 45, vjust = 0.5), legend.title = element_blank(), plot.title = element_text(hjust = 0.5)) + 
+  labs(x = "DOC (mg/L)", y = "HAA-FP (μg/L)")
 
-water_chem_v5$`HAAsFP [μg/L]` <- as.numeric(water_chem_v5$`HAAsFP [μg/L]`)
+doc_haa_plot
 
-summary(water_chem_v5$`THMsFP [μg/L]`)
+doc_thm_plot <- uw_chem %>% 
+  ggplot(aes(x = doc, y = `thm-fp`, colour = type)) +
+  geom_point(size = 3) +
+  scale_colour_manual(values = c("#E69F00", "#56B4E9", "#009E73", 
+                                          "#F0E442")) +
+                                            geom_jitter() +
+  theme_bw(base_size = 16) +
+  theme(axis.text.x=element_text(angle = 45, vjust = 0.5), legend.title = element_blank(), plot.title = element_text(hjust = 0.5)) + 
+  labs(x = "DOC (mg/L)", y = "THM-FP (μg/L)")
+
+doc_thm_plot
+
+suva_thm_plot <- uw_suva %>% 
+  ggplot(aes(x = suva, y = `thm-fp`, colour = type)) +
+  geom_point(size = 3) +
+  scale_colour_manual(values = c("#E69F00", "#56B4E9", "#009E73", 
+                                          "#F0E442")) +
+                                            geom_jitter() +
+  theme_bw(base_size = 16) +
+  theme(axis.text.x=element_text(angle = 45, vjust = 0.5), legend.title = element_blank(), plot.title = element_text(hjust = 0.5)) + 
+  labs(x = "SUVA (L/mg-C/m)", y = "THM-FP (μg/L)")
+
+suva_thm_plot
+
+suva_haa_plot <- uw_suva %>% 
+  ggplot(aes(x = suva, y = `haa-fp`, colour = type)) +
+  geom_point(size = 3) +
+  scale_colour_manual(values = c("#E69F00", "#56B4E9", "#009E73", 
+                                          "#F0E442")) +
+                                            geom_jitter() +
+  theme_bw(base_size = 16) +
+  theme(axis.text.x=element_text(angle = 45, vjust = 0.5), legend.title = element_blank(), plot.title = element_text(hjust = 0.5)) + 
+  labs(x = "SUVA (L/mg-C/m)", y = "HAA-FP (μg/L)")
+
+suva_haa_plot
+
+### Arrang them all
+
+suva_dbp <- ggarrange(suva_thm_plot + theme(axis.title.x = element_blank()),
+                      suva_haa_plot + theme(axis.title.x = element_blank()),
+                               ncol = 2,
+                               common.legend = TRUE)
+
+suva_dbps_plot <- annotate_figure(suva_dbp,
+                bottom = text_grob("SUVA (L/mg-C/m)", color = "black", size = 16)) # adding common x-axis label
+suva_dbps_plot
+
+doc_dbp <- ggarrange(doc_thm_plot + theme(axis.title.x = element_blank()),
+                     doc_haa_plot + theme(axis.title.x = element_blank()),
+                             ncol = 2,
+                             common.legend = TRUE)
+
+doc_dbps_plot <- annotate_figure(doc_dbp,
+                                  bottom = text_grob("DOC (mg/L)", color = "black", size = 16)) # adding common x-axis label
+doc_dbps_plot

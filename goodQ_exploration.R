@@ -34,7 +34,8 @@ glfc_chem <- readRDS("glfc_data_v3.rds")
 ### 3.1 Subset to sites with only "good" discharge estimates - meaning the entire field season only and no sites with "partially" good data (i.e., why WS 93 is dropped here) ----
 
 goodQ_sites <- watersheds %>% 
-  filter(`Discharge Quality` %in% "Good") # 15 sites
+  select(`Site name`, `Catchment ID`, `Drainage Area (km2)`, `Discharge Quality`) %>% 
+  filter(`Discharge Quality` %in% "Good") # 15 sites 
 
 ### 3.2 Use the above list to filter the good sites in the chem dataset
 
@@ -44,7 +45,7 @@ glfc_chem_sites <- glfc_chem %>%
 glfc_wide <- glfc_chem_sites %>% 
   pivot_wider(names_from = "variable", values_from = "value")
 
-
+left_join
 ## 4. PLOTTING ----
 
 ### 4.1 Look at their distribution in terms of group (e.g., disturbance type/control) ----
@@ -61,7 +62,7 @@ goodQ_sites %>%
 glfc_wide %>% 
   ggplot(aes(x = daily.discharge, y = organic.carbon)) +
   geom_point() +
-  facet_wrap(~ catchment.id) +
+  facet_wrap(~ catchment.id, scales = "free_y") +
   #scale_colour_manual(values = c("Control" = "#E69F00", "Harvest" = "#56B4E9", "Insect" = "#009E73", "Mixed" = "#F0E442")) +
   scale_x_log10() +
   theme_bw(base_size = 16) +
@@ -71,4 +72,10 @@ glfc_wide %>%
 ## 5. SAVING // EXPORTING ----
 
 ## 6. TRIAL // JUNK CODE ----
+
+### 6.01 - Try computing specific discharge (Q / catchment area)
+
+spec.q
+
+
 

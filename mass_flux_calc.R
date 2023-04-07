@@ -23,6 +23,8 @@ library(tidyverse)
 library(readxl)
 library(scales)
 library(lubridate)
+library(devtools)
+library(ggpmisc)
 
 theme_update(text = element_text(size=20)) # Make graph text slightly bigger for readability
 
@@ -116,6 +118,90 @@ flux_means <- mean_mf %>%
   group_by(catchment, group) %>% 
   summarise(flux.means = mean(mass.time.area))
   
+##################### Temporal instantaneous flux plot per site ----
+
+q_estimates <- readRDS("Q_estimates_v2.rds")
+
+inst_flux_steps %>% 
+  ggplot(aes(x = date, y = mg.s.area)) +
+  geom_point() +
+  facet_wrap(~ catchment.id) +
+  scale_y_log10() +
+  theme_bw(base_size = 16) +
+  xlab("") +
+  ylab(expression(paste("Instantaneous mass flux ", (mg/s/km^2))))
+
+############## instantaneous flux paired catchments (disturbed / control) examination ----
+
+c9_and_m6 <- inst_flux_steps %>% 
+  select(-`Drainage Area (km2)`, -site, -totalQ, -discharge.litres, -inst.flux, -log.mg.s.area, -organic.carbon) %>% 
+  filter(catchment.id %in% "C9" | catchment.id %in% "M6") %>% 
+  pivot_wider(names_from = "catchment.id", values_from = "mg.s.area")
+
+c8_and_m6 <- inst_flux_steps %>% 
+  select(-`Drainage Area (km2)`, -site, -totalQ, -discharge.litres, -inst.flux, -log.mg.s.area, -organic.carbon) %>% 
+  filter(catchment.id %in% "C8" | catchment.id %in% "M6") %>% 
+  pivot_wider(names_from = "catchment.id", values_from = "mg.s.area")
+
+c8_and_h3 <- inst_flux_steps %>% 
+  select(-`Drainage Area (km2)`, -site, -totalQ, -discharge.litres, -inst.flux, -log.mg.s.area, -organic.carbon) %>% 
+  filter(catchment.id %in% "C8" | catchment.id %in% "H3") %>% 
+  pivot_wider(names_from = "catchment.id", values_from = "mg.s.area")
+
+c8_and_h2 <- inst_flux_steps %>% 
+  select(-`Drainage Area (km2)`, -site, -totalQ, -discharge.litres, -inst.flux, -log.mg.s.area, -organic.carbon) %>% 
+  filter(catchment.id %in% "C8" | catchment.id %in% "H2") %>% 
+  pivot_wider(names_from = "catchment.id", values_from = "mg.s.area")
+
+### Graphs
+c9m6_plot <- c9_and_m6 %>% 
+  ggplot(aes(x = C9, y = M6, na.rm = FALSE)) +
+  geom_point() +
+  theme_bw(base_size = 16) +
+  scale_x_continuous(expand = c(0, 0), limits = c(0, 45)) + 
+  scale_y_continuous(expand = c(0, 0), limits = c(0, 45)) +
+  geom_smooth(method = "lm", se = FALSE, colour = "black", lty = "dotted") +
+  xlab(bquote('C9 DOC instantaneous flux '(mg/s/km^2))) +
+  ylab("") +
+  stat_poly_eq(aes(label = paste(after_stat(eq.label),
+                                 after_stat(rr.label), sep = "*\", \"*"))) +
+  geom_abline(slope = 1, lty = "dotted", colour = "orange", linewidth = 1)
+
+c8m6_plot <- c8_and_m6 %>% 
+  ggplot(aes(x = C8, y = M6, na.rm = FALSE)) +
+  geom_point() +
+  theme_bw(base_size = 16) +
+  scale_x_continuous(expand = c(0, 0), limits = c(0, 45)) + 
+  scale_y_continuous(expand = c(0, 0), limits = c(0, 45)) +
+  geom_smooth(method = "lm", se = FALSE, colour = "black", lty = "dotted") +
+  xlab(bquote('C8 DOC instantaneous flux '(mg/s/km^2))) +
+  ylab("") +
+  stat_poly_eq(aes(label = paste(after_stat(eq.label),
+                                 after_stat(rr.label), sep = "*\", \"*"))) +
+  geom_abline(slope = 1, lty = "dotted", colour = "orange", linewidth = 1)
+
+c8_and_h3 %>% 
+  ggplot(aes(x = C8, y = H3, na.rm = FALSE)) +
+  geom_point() +
+  theme_bw(base_size = 16) +
+  geom_smooth(method = "lm", se = FALSE, colour = "black", lty = "dotted") # different magnitudes - distance probably too great
+
+c8_and_h2 %>% 
+  ggplot(aes(x = C8, y = H2, na.rm = FALSE)) +
+  geom_point() +
+  theme_bw(base_size = 16) +
+  geom_smooth(method = "lm", se = FALSE, colour = "black", lty = "dotted") # different magnitudes - distance probably too great
+
+##### Arrange above figures ----
+
+paired_catchment_figure <- ggarrange(c9m6_plot,
+                                     c8m6_plot,
+                                     labels = NULL,
+                                     nrow = 2)
+
+paired_catchment_figure
+
+annotate_figure(paired_catchment_figure, left = textGrob(bquote('M6 DOC instantaneous flux '(mg/s/km^2)), rot = 90, hjust = 0.45, vjust = 1.5, gp = gpar(cex = 1.3), ))
 
 
 

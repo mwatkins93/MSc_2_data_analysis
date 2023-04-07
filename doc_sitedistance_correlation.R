@@ -8,6 +8,7 @@
 #########################
 
 ## 0. NOTES ----
+water_chem <- readRDS("glfc_chem_cleaned_v1.01.rds")
 
 ### 0.1 - Can just load the clean dist_coeff_df RDS file now for quick plotting
 
