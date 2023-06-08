@@ -44,6 +44,16 @@ uw_chem_dat <- uw_chem_wide %>%
 
 uw_chem <- readRDS("uw_chem_cleaned_v1.03.rds")
 
+### - 0.3 - Update the HAA NAs (samples that could only do THM because chlorine levels were too low)
+
+uw_chem[33, 10] <- NA # remove 2021-09-25 HAA for H1
+uw_chem[35, 10] <- NA # remove 2021-09-25 HAA for I1
+uw_chem[40, 10] <- NA # remove 2021-09-28 HAA for C12
+
+### Updated save (May 29th/23)
+
+saveRDS(uw_chem, file = "uw_chem_cleaned_v1.04.rds")
+
 ## 1. Prepare
 ##---------------------------
 
