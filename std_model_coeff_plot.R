@@ -17,6 +17,15 @@ tprod_for_st
 
 get.models(themodeltable, subset = 1)[[1]]
 
+### Zscore 10-year wildfire and add it back to table
+
+doc_tbl_upd <- standard_doc_tbl %>% 
+  mutate(wildfire10_st = zscore(`10-year Wildfire Disturbance (%)`))
+
+doc_tbl_upd <- doc_tbl_upd %>% relocate(wildfire10_st, .before = harv10_st)
+
+saveRDS(doc_tbl_upd, file = "final_doc_tbl.rds")
+
 ## 1. PREPARE ----
 
 rm(list=ls())
@@ -31,18 +40,20 @@ library(modelsummary)
 library(dotwhisker)
 library(sjPlot)
 library(factoextra)
+library(vegan)
+library(mosaic)
 
 ## 2. IMPORT ----
 
-standard_doc_tbl <- readRDS("final_std_doc_table.rds")
+doc_tbl <- readRDS("master_doc_tbl.rds")
 
 ## 3. TIDY // PROCESS ----
 
+doc_predictors <- standard_doc_tbl[, c(40:46, 48:60)] # Removed certain variables
+
 ### 3.01 - Run a PCA on the standardised predictor variables to determine redundancy ----
 
-pca.dat <- standard_doc_tbl[,c(34:53)] # select columns for pca analysis
-
-pca <- prcomp(pca.dat, center = T, scale. = T) # run the pca
+pca <- prcomp(doc_predictors, scale. = TRUE, center = TRUE) # run the pca
 
 summary(pca) # display the pca results in table format
 
@@ -50,13 +61,15 @@ plot(pca)
 biplot(pca)
 
 fviz_pca_var(pca,
-             ggtheme = theme_gray(),
-             alpha.var=0.3,
+             alpha.var = 0.3,
              col.var = "steelblue",
-             repel=TRUE,
-             title = "PCA - Predictor variables",
+             #col.ind = "#696969",
+             title = "",
+             repel = TRUE,
              xlab = "PC1 (22.8%)",
-             ylab = "PC2 (17.6%")
+             ylab = "PC2 (20.3%")
+
+#### Fviz gr
 
 # look at correlation 
 

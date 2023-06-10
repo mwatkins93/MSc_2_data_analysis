@@ -11,7 +11,7 @@
 
 ## 0.1 No C3 dataframe ----
 
-no_c3 <- doc_table %>% 
+no_c3 <- if_table %>% 
   filter(!`Catchment ID` %in% "C3") # df with removal of C3
 
 ### 0.2 - Solution for extracting best model only in certain cases!
@@ -35,15 +35,18 @@ library(factoextra)
 
 ## 2. IMPORT ----
 
-doc_table <- readRDS("final_doc_tbl.rds")
+if_table <- readRDS("final_doc_tbl.rds")
 
 ## 3. TIDY // PROCESS ----
+
+if_no_c3 <- if_table %>% 
+  filter(!`Catchment ID` %in% "C3")
 
 ### 3.01 - Instantaneous flux w/ base model ----
 
 #### 3.04.1 - inst flux 1 ----
 
-if1_base_model <- lm(inst.flux.1 ~ Group + conifer_st + insect5_st + harv10_st + drainage_st + elev_st + wetland_st + open_wat_st + slope_st, data = no_c3)
+if1_base_model <- lm(inst.flux.1 ~ Group + conifer_st + drainage_st + elev_st + wetland_st + open_wat_st + slope_st, data = if_no_c3)
 
 if1_base_table <- dredge(if1_base_model, rank = "AICc")
 
@@ -51,9 +54,9 @@ if1_base_model_avg <- model.avg(subset(if1_base_table, delta <= 2, recalc.weight
 
 #### 3.04.3 - inst flux 2 ----
 
-if2_sub <- no_c3[-3, ]
+if2_sub <- if_no_c3[-3, ]
 
-if2_base_model <- lm(inst.flux.2 ~ Group + conifer_st + insect5_st + harv10_st+ drainage_st + elev_st + wetland_st + open_wat_st + slope_st, data = if2_sub)
+if2_base_model <- lm(inst.flux.2 ~ Group + conifer_st + drainage_st + elev_st + wetland_st + open_wat_st + slope_st, data = if2_sub)
 
 if2_base_table <- dredge(if2_base_model, rank = "AICc")
 
@@ -61,21 +64,21 @@ if2_base_model_avg <- model.avg(subset(if2_base_table, delta <= 2, recalc.weight
 
 #### 3.04.4 - inst flux 3 ----
 
-if3_sub <- no_c3[c(-3, -6), ]
+if3_sub <- if_no_c3[c(-3, -6), ]
 
-if3_base_model <- lm(inst.flux.3 ~ Group + conifer_st + insect5_st + harv10_st+ drainage_st + elev_st + wetland_st + open_wat_st + slope_st, data = if3_sub)
+if3_base_model <- lm(inst.flux.3 ~ Group + conifer_st + drainage_st + elev_st + wetland_st + open_wat_st + slope_st, data = if3_sub)
 
 if3_base_table <- dredge(if3_base_model, rank = "AICc")
 
-if3_base_model_avg <- model.avg(subset(if3_base_table, delta <= 2, recalc.weights = FALSE), fit = TRUE)
+if3_base_model_avg <- get.models(if3_base_table, subset = 1)[[1]]
 
 # if3_base_model_avg <- get.models(if3_base_table, subset = 1)[[1]]
 
 #### 3.04.5 - inst flux 4 ----
 
-if4_sub <- no_c3[c(-3, -6, -12, -22), ]
+if4_sub <- if_no_c3[c(-3, -6, -12, -22), ]
 
-if4_base_model <- lm(inst.flux.4 ~ Group + conifer_st + insect5_st + harv10_st+ drainage_st + elev_st + wetland_st + open_wat_st + slope_st, data = if4_sub)
+if4_base_model <- lm(inst.flux.4 ~ Group + conifer_st + drainage_st + elev_st + wetland_st + open_wat_st + slope_st, data = if4_sub)
 
 if4_base_table <- dredge(if4_base_model, rank = "AICc")
 
@@ -83,9 +86,9 @@ if4_base_model_avg <- model.avg(subset(if4_base_table, delta <= 2, recalc.weight
 
 #### 3.04.6 - inst flux 5 ----
 
-if5_sub <- no_c3[-3, ]
+if5_sub <- if_no_c3[-3, ]
 
-if5_base_model <- lm(inst.flux.5 ~ Group + conifer_st + insect5_st+ harv10_st + drainage_st + elev_st + wetland_st + open_wat_st + slope_st, data = if5_sub)
+if5_base_model <- lm(inst.flux.5 ~ Group + conifer_st + drainage_st + elev_st + wetland_st + open_wat_st + slope_st, data = if5_sub)
 
 if5_base_table <- dredge(if5_base_model, rank = "AICc")
 
@@ -93,9 +96,9 @@ if5_base_model_avg <- model.avg(subset(if5_base_table, delta <= 2, recalc.weight
 
 #### 3.04.7 - inst flux 6 ----
 
-if6_sub <- no_c3[c(-3, -5, -12, -17, -18, -22, -24), ]
+if6_sub <- if_no_c3[c(-3, -5, -12, -17, -18, -22, -24), ]
 
-if6_base_model <- lm(inst.flux.6 ~ Group + conifer_st + insect5_st+ harv10_st + drainage_st + elev_st + wetland_st + open_wat_st + slope_st, data = if6_sub)
+if6_base_model <- lm(inst.flux.6 ~ Group + conifer_st + drainage_st + elev_st + wetland_st + open_wat_st + slope_st, data = if6_sub)
 
 if6_base_table <- dredge(if6_base_model, rank = "AICc")
 
@@ -120,7 +123,7 @@ inst_flux_base_model_plot <- dwplot(inst_flux_base_model_avgs) %>%
     wetland_st = "Wetland",
     elev_st = "Elevation",
     GroupHarvest = "Harvest Class",
-    GroupInsect = "Insect Class",
+    GroupInsect = "Infestation Class",
     GroupMixed = "Mixed Class",
     harv20_st = "20-year Harvest",
     harv15_st = "15-year Harvest",
@@ -130,11 +133,11 @@ inst_flux_base_model_plot <- dwplot(inst_flux_base_model_avgs) %>%
     insect10_st = "10-year Infestation",
     insect5_st = "5-year Infestation")) +
   theme_bw() +
-  labs(title = "Averaged instantaneous flux coefficients - 5-year insect + 10-year harvest") +
+  labs(title = "DOC - instantaneous flux") +
   theme(legend.title = element_blank(), plot.title = element_text(hjust = 0.5, face="bold")) +
   geom_vline(xintercept = 0) +
-  scale_colour_manual(labels = c("IF1", "IF2", "IF3", "IF4", "IF5", "IF6"),
-                      values = c("#c4c1c6", "#005155", "#e9b22a", "#8c6d31", "#6600ff", "#000000"))
+  scale_colour_manual(labels = c("IF 1", "IF 2", "IF 3", "IF 4", "IF 5", "IF 6"),
+                      values = c("#99ccff", "#c4c1c6", "#005155", "#e9b22a", "#8c6d31", "#6600ff"))
 
 # view plot
 inst_flux_base_model_plot
