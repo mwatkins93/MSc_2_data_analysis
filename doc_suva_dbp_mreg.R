@@ -55,27 +55,23 @@ doc_arranged <- doc_predictors %>%
 
 #### 3.01.1 Mean DOC ----
 
-mean_base_model <- lm(mean.doc ~ Group + conifer_st + drainage_st + elev_st + open_wat_st, data = doc_arranged)
+mean_base_model <- lm(mean.doc ~ Group + conifer_st + drainage_st + elev_st + wetland_st + slope_st, data = doc_arranged)
 
 mean_base_model_tbl <- dredge(mean_base_model, rank = "AICc")
 
-# mean_base_model_avg <- model.avg(subset(mean_base_model_tbl, delta <= 2, recalc.weights = FALSE), fit = TRUE)
-
-mean_base_model_avg <- get.models(mean_base_model_tbl, subset = 1)[[1]]
+mean_base_model_avg <- model.avg(subset(mean_base_model_tbl, delta <= 2, recalc.weights = FALSE), fit = TRUE)
 
 #### 3.01.2 - Sample campaign 1 ----
 
-sc1_base_model <- lm(doc.s1 ~ Group + conifer_st + drainage_st + elev_st + open_wat_st, data = doc_arranged)
+sc1_base_model <- lm(doc.s1 ~ Group + conifer_st + drainage_st + elev_st + wetland_st + slope_st, data = doc_arranged)
 
 sc1_base_table <- dredge(sc1_base_model, rank = "AICc")
 
-# sc1_base_model_avg <- model.avg(subset(sc1_base_table, delta <= 2, recalc.weights = FALSE), fit = TRUE)
-
-sc1_base_model_avg <- get.models(mean_base_model_tbl, subset = 1)[[1]]
+sc1_base_model_avg <- model.avg(subset(sc1_base_table, delta <= 2, recalc.weights = FALSE), fit = TRUE)
 
 #### 3.04.3 - Sample campaign 2 ----
 
-sc2_base_model <- lm(doc.s2 ~ Group + conifer_st + drainage_st + elev_st + open_wat_st, data = doc_arranged)
+sc2_base_model <- lm(doc.s2 ~ Group + conifer_st + drainage_st + elev_st + wetland_st + slope_st, data = doc_arranged)
 
 sc2_base_table <- dredge(sc2_base_model, rank = "AICc")
 
@@ -85,7 +81,7 @@ sc2_base_model_avg <- model.avg(subset(sc2_base_table, delta <= 2, recalc.weight
 
 doc_s3_sub <- doc_arranged[-3, ]
 
-sc3_base_model <- lm(doc.s3 ~ Group + conifer_st + drainage_st + elev_st + open_wat_st, data = doc_s3_sub)
+sc3_base_model <- lm(doc.s3 ~ Group + conifer_st + drainage_st + elev_st + wetland_st + slope_st, data = doc_s3_sub)
 
 sc3_base_table <- dredge(sc3_base_model, rank = "AICc")
 
@@ -95,7 +91,7 @@ sc3_base_model_avg <- model.avg(subset(sc3_base_table, delta <= 2, recalc.weight
 
 doc_s4_sub <- doc_arranged[c(-3, -6), ]
 
-sc4_base_model <- lm(doc.s4 ~ Group + conifer_st + drainage_st + elev_st + open_wat_st, data = doc_s4_sub)
+sc4_base_model <- lm(doc.s4 ~ Group + conifer_st + drainage_st + elev_st + wetland_st + slope_st, data = doc_s4_sub)
 
 sc4_base_table <- dredge(sc4_base_model, rank = "AICc")
 
@@ -105,7 +101,7 @@ sc4_base_model_avg <- model.avg(subset(sc4_base_table, delta <= 2, recalc.weight
 
 doc_s5_sub <- doc_arranged[-3, ]
 
-sc5_base_model <- lm(doc.s5 ~ Group + conifer_st + drainage_st + elev_st + open_wat_st, data = doc_s5_sub)
+sc5_base_model <- lm(doc.s5 ~ Group + conifer_st + drainage_st + elev_st + wetland_st + slope_st, data = doc_s5_sub)
 
 sc5_base_table <- dredge(sc5_base_model, rank = "AICc")
 
@@ -113,7 +109,7 @@ sc5_base_model_avg <- model.avg(subset(sc5_base_table, delta <= 2, recalc.weight
 
 #### 3.04.7 - Sample campaign 6 ----
 
-sc6_base_model <- lm(doc.s6 ~ Group + conifer_st + drainage_st + elev_st + open_wat_st, data = doc_arranged)
+sc6_base_model <- lm(doc.s6 ~ Group + conifer_st + drainage_st + elev_st + wetland_st + slope_st, data = doc_arranged)
 
 sc6_base_table <- dredge(sc6_base_model, rank = "AICc")
 
@@ -141,6 +137,7 @@ doc_base_model_plot <- dwplot(base_model_avgs) %>%
     harv10_st = "10-year Harvest",
     harv5_st = "5-year Harvest",
     insect20_st = "20-year Infestation",
+    insect15_st = "15-year Infestation",
     insect10_st = "10-year Infestation",
     insect5_st = "5-year Infestation")) +
   theme_bw() +
@@ -165,7 +162,7 @@ if_no_c3 <- if_table %>%
 
 #### 3.04.1 - inst flux 1 ----
 
-if1_base_model <- lm(inst.flux.1 ~ Group + conifer_st + drainage_st + elev_st + open_wat_st, data = if_no_c3)
+if1_base_model <- lm(inst.flux.1 ~ Group + conifer_st + drainage_st + elev_st + wetland_st + slope_st, data = if_no_c3)
 
 if1_base_table <- dredge(if1_base_model, rank = "AICc")
 
@@ -175,7 +172,7 @@ if1_base_model_avg <- model.avg(subset(if1_base_table, delta <= 2, recalc.weight
 
 if2_sub <- if_no_c3[-3, ]
 
-if2_base_model <- lm(inst.flux.2 ~ Group + conifer_st + drainage_st + elev_st + open_wat_st, data = if2_sub)
+if2_base_model <- lm(inst.flux.2 ~ Group + conifer_st + drainage_st + elev_st + wetland_st + slope_st, data = if2_sub)
 
 if2_base_table <- dredge(if2_base_model, rank = "AICc")
 
@@ -185,7 +182,7 @@ if2_base_model_avg <- model.avg(subset(if2_base_table, delta <= 2, recalc.weight
 
 if3_sub <- if_no_c3[c(-3, -6), ]
 
-if3_base_model <- lm(inst.flux.3 ~ Group + conifer_st + drainage_st + elev_st + open_wat_st, data = if3_sub)
+if3_base_model <- lm(inst.flux.3 ~ Group + conifer_st + drainage_st + elev_st + wetland_st + slope_st, data = if3_sub)
 
 if3_base_table <- dredge(if3_base_model, rank = "AICc")
 
@@ -197,7 +194,7 @@ if3_base_model_avg <- get.models(if3_base_table, subset = 1)[[1]]
 
 if4_sub <- if_no_c3[c(-3, -6, -12, -22), ]
 
-if4_base_model <- lm(inst.flux.4 ~ Group + conifer_st + drainage_st + elev_st + open_wat_st, data = if4_sub)
+if4_base_model <- lm(inst.flux.4 ~ Group + conifer_st + drainage_st + elev_st + wetland_st + slope_st, data = if4_sub)
 
 if4_base_table <- dredge(if4_base_model, rank = "AICc")
 
@@ -207,7 +204,7 @@ if4_base_model_avg <- model.avg(subset(if4_base_table, delta <= 2, recalc.weight
 
 if5_sub <- if_no_c3[-3, ]
 
-if5_base_model <- lm(inst.flux.5 ~ Group + conifer_st + drainage_st + elev_st + open_wat_st, data = if5_sub)
+if5_base_model <- lm(inst.flux.5 ~ Group + conifer_st + drainage_st + elev_st + wetland_st + slope_st, data = if5_sub)
 
 if5_base_table <- dredge(if5_base_model, rank = "AICc")
 
@@ -217,13 +214,11 @@ if5_base_model_avg <- model.avg(subset(if5_base_table, delta <= 2, recalc.weight
 
 if6_sub <- if_no_c3[c(-3, -5, -12, -17, -18, -22, -24), ]
 
-if6_base_model <- lm(inst.flux.6 ~ Group + conifer_st + drainage_st + elev_st + open_wat_st, data = if6_sub)
+if6_base_model <- lm(inst.flux.6 ~ Group + conifer_st + drainage_st + elev_st + wetland_st + slope_st, data = if6_sub)
 
 if6_base_table <- dredge(if6_base_model, rank = "AICc")
 
 if6_base_model_avg <- model.avg(subset(if6_base_table, delta <= 2, recalc.weights = FALSE), fit = TRUE)
-
-# if6_base_model_avg <- get.models(if6_base_table, subset = 1)[[1]]
 
 ### 3.05 - Merge all model items into a list for plotting ----
 
@@ -249,6 +244,7 @@ inst_flux_base_model_plot <- dwplot(inst_flux_base_model_avgs) %>%
     harv10_st = "10-year Harvest",
     harv5_st = "5-year Harvest",
     insect20_st = "20-year Infestation",
+    insect15_st = "15-year Infestation",
     insect10_st = "10-year Infestation",
     insect5_st = "5-year Infestation")) +
   theme_bw() +
@@ -265,7 +261,7 @@ inst_flux_base_model_plot
 
 #### 3.01.1 Mean SUVA ----
 
-suva_mean_base_model <- lm(mean.suva ~ Group + conifer_st + drainage_st + elev_st + open_wat_st, data = doc_arranged)
+suva_mean_base_model <- lm(mean.suva ~ Group + conifer_st + drainage_st + elev_st + wetland_st + slope_st, data = doc_arranged)
 
 suva_mean_base_model_tbl <- dredge(suva_mean_base_model, rank = "AICc")
 
@@ -273,7 +269,7 @@ suva_mean_base_model_avg <- model.avg(subset(suva_mean_base_model_tbl, delta <= 
 
 #### 3.01.2 - Sample campaign 1 ----
 
-suva1_base_model <- lm(suva.1 ~ Group + conifer_st + drainage_st + elev_st + open_wat_st, data = doc_arranged)
+suva1_base_model <- lm(suva.1 ~ Group + conifer_st + drainage_st + elev_st + wetland_st + slope_st, data = doc_arranged)
 
 suva1_base_tbl <- dredge(suva1_base_model, rank = "AICc")
 
@@ -281,7 +277,7 @@ suva1_base_model_avg <- model.avg(subset(suva1_base_tbl, delta <= 2, recalc.weig
 
 #### 3.04.3 - Sample campaign 2 ----
 
-suva2_base_model <- lm(suva.2 ~ Group + conifer_st + drainage_st + elev_st + open_wat_st, data = doc_arranged)
+suva2_base_model <- lm(suva.2 ~ Group + conifer_st + drainage_st + elev_st + wetland_st + slope_st, data = doc_arranged)
 
 suva2_base_table <- dredge(suva2_base_model, rank = "AICc")
 
@@ -291,7 +287,7 @@ suva2_base_model_avg <- model.avg(subset(suva2_base_table, delta <= 2, recalc.we
 
 suva3_sub <- doc_arranged[-3, ]
 
-suva3_base_model <- lm(suva.3 ~ Group + conifer_st + drainage_st + elev_st + open_wat_st, data = suva3_sub)
+suva3_base_model <- lm(suva.3 ~ Group + conifer_st + drainage_st + elev_st + wetland_st + slope_st, data = suva3_sub)
 
 suva3_base_table <- dredge(suva3_base_model, rank = "AICc")
 
@@ -301,7 +297,7 @@ suva3_base_model_avg <- model.avg(subset(suva3_base_table, delta <= 2, recalc.we
 
 suva4_sub <- doc_arranged[c(-3, -6), ]
 
-suva4_base_model <- lm(suva.4 ~ Group + conifer_st + drainage_st + elev_st + open_wat_st, data = suva4_sub)
+suva4_base_model <- lm(suva.4 ~ Group + conifer_st + drainage_st + elev_st + wetland_st + slope_st, data = suva4_sub)
 
 suva4_base_table <- dredge(suva4_base_model, rank = "AICc")
 
@@ -311,7 +307,7 @@ suva4_base_model_avg <- model.avg(subset(suva4_base_table, delta <= 2, recalc.we
 
 suva5_sub <- doc_arranged[-3, ]
 
-suva5_base_model <- lm(suva.5 ~ Group + conifer_st + drainage_st + elev_st + open_wat_st, data = suva5_sub)
+suva5_base_model <- lm(suva.5 ~ Group + conifer_st + drainage_st + elev_st + wetland_st + slope_st, data = suva5_sub)
 
 suva5_base_table <- dredge(suva5_base_model, rank = "AICc")
 
@@ -319,7 +315,7 @@ suva5_base_model_avg <- model.avg(subset(suva5_base_table, delta <= 2, recalc.we
 
 #### 3.04.7 - Sample campaign 6 ----
 
-suva6_base_model <- lm(suva.6 ~ Group + conifer_st + drainage_st + elev_st + open_wat_st, data = doc_arranged)
+suva6_base_model <- lm(suva.6 ~ Group + conifer_st + drainage_st + elev_st + wetland_st + slope_st, data = doc_arranged)
 
 suva6_base_table <- dredge(suva6_base_model, rank = "AICc")
 
@@ -347,6 +343,7 @@ suva_base_model_plot <- dwplot(suva_base_model_avgs) %>%
     harv10_st = "10-year Harvest",
     harv5_st = "5-year Harvest",
     insect20_st = "20-year Infestation",
+    insect15_st = "15-year Infestation",
     insect10_st = "10-year Infestation",
     insect5_st = "5-year Infestation")) +
   theme_bw() +
@@ -378,6 +375,7 @@ mreg_arranged_plot + plot_theme
 # 5.4 5-year infestation and 5-year harvest inclusion (how does recent disturbance affect the model)
 # 5.5 15-year infestation and 20-year harvest inclusion (how does legacy disturbance affect the model)
 # 5.6 Open water exclusion (how does the model react to this)
+## 5.6.1 Open water exclusion final draft
 # 5.7 Updated base model code
 
 
