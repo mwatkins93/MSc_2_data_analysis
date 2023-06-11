@@ -249,7 +249,7 @@ suva_base_model_plot <- dwplot(suva_base_model_avgs) %>%
 
 suva_base_model_plot
 
-### 4 - Arranged plot ----
+### 4. - Arranged plot ----
 
 mreg_arranged_plot <- ggarrange(doc_base_model_plot,
                      suva_base_model_plot,
@@ -259,9 +259,9 @@ mreg_arranged_plot <- ggarrange(doc_base_model_plot,
 mreg_arranged_plot + plot_theme
 
 
-############ Try to solve the THM-FP problem ##############
+### 5. Versions (Github control) ----
 
-# log transform does not work - THM and HAA are out of the mreg!
+# 5.1 Base model
 
 
 
