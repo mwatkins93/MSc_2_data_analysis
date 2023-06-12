@@ -371,8 +371,9 @@ mreg_arranged_plot + plot_theme
 # 5.2 Slope and wetland exclusion
 ## 5.2.1 Slope and wetland exclusion final draft
 # 5.3 5-year infestation and 10-year harvest inclusion (how do mixed disturbance regimes affect the model)
+## 5.3.1 5-year infestation and 5-year harvest inclusion final draft
 # 5.4 5-year infestation and 5-year harvest inclusion (how does recent disturbance affect the model)
-## 5.4.1 5-year infestation and 5-year harvest inclusion final draft
+
 # 5.5 15-year infestation and 20-year harvest inclusion (how does legacy disturbance affect the model)
 # 5.6 Open water exclusion (how does the model react to this)
 ## 5.6.1 Open water exclusion final draft
