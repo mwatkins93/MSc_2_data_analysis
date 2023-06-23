@@ -44,12 +44,15 @@ library(vegan)
 library(mosaic)
 
 ## 2. IMPORT ----
+doc_table1 <- readRDS("final_doc_tbl.rds") # use the below table (final_tbl only has 26 sites)
 
 doc_tbl <- readRDS("master_doc_tbl.rds")
 
 ## 3. TIDY // PROCESS ----
 
-doc_predictors <- standard_doc_tbl[, c(40:46, 48:60)] # Removed certain variables
+doc_predictors <- doc_tbl[, c(35:41, 43:54)] # Removed certain variables
+
+colnames(doc_predictors) <- c("Latitude", "Longitude", "Catchment area", "Elevation", "Slope", "Wetland %", "Open water %", "Deciduous cover", "Coniferous cover", "5-year harvest", "5-year infestation", "5-year abiotic", "10-year harvest", "10-year infestation", "15-year wildfire", "15-year harvest", "15-year infestation", "20-year harvest", "20-year infestation")  #Need to rename predictors for final PCA plot
 
 ### 3.01 - Run a PCA on the standardised predictor variables to determine redundancy ----
 
@@ -67,7 +70,7 @@ fviz_pca_var(pca,
              title = "",
              repel = TRUE,
              xlab = "PC1 (22.8%)",
-             ylab = "PC2 (20.3%")
+             ylab = "PC2 (20.3%)")
 
 #### Fviz gr
 
