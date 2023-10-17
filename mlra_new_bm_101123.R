@@ -186,90 +186,90 @@ summary(if6_bm)
 
 # BM = open water + coniferous + slope + drainage area
 
-mDOC_bm <- lm(mean.doc ~ conifer_st + drainage_st + open_wat_st + slope_st, data = doc_tidy)
+msuva_bm <- lm(mean.suva ~ open_wat_st + conifer_st + drainage_st+ slope_st, data = doc_tidy)
 
-summary(mDOC_bm)
+summary(msuva_bm)
 
 # BM + wetland cover
 
-mDOC_wet <- lm(mean.doc ~ conifer_st + drainage_st + open_wat_st + slope_st + wetland_st, data = doc_tidy)
+msuva_wet <- lm(mean.suva ~ conifer_st + drainage_st + open_wat_st + slope_st + wetland_st, data = doc_tidy)
 
-summary(mDOC_wet)
+summary(msuva_wet)
 
 # BM + elevation
 
-mDOC_elev <- lm(mean.doc ~ conifer_st + drainage_st + open_wat_st + slope_st + elev_st, data = doc_tidy)
+msuva_elev <- lm(mean.suva ~ conifer_st + drainage_st + open_wat_st + slope_st + elev_st, data = doc_tidy)
 
-summary(mDOC_elev)
+summary(msuva_elev)
 
 # BM + wetland & elevation
 
-mDOC_wet_elev <- lm(mean.doc ~ conifer_st + drainage_st + open_wat_st + slope_st + wetland_st + elev_st, data = doc_tidy)
+msuva_wet_elev <- lm(mean.suva ~ conifer_st + drainage_st + open_wat_st + slope_st + wetland_st + elev_st, data = doc_tidy)
 
-summary(mDOC_wet_elev)
+summary(msuva_wet_elev)
 
 ## 2.1.1 Anova Assess ----
 
-anova(mDOC_bm, mDOC_wet) ## Failed to reject null; model is not sign. better
-anova(mDOC_bm, mDOC_elev) ## Failed to reject null; model is not sign. better
-anova(mDOC_bm, mDOC_wet_elev) ## Failed to reject null; model is not sign. better
+anova(msuva_bm, msuva_wet) ## Failed to reject null; model is not sign. better
+anova(msuva_bm, msuva_elev) ## Failed to reject null; model is not sign. better
+anova(msuva_bm, msuva_wet_elev) ## Failed to reject null; model is not sign. better
 
 #### 2.2 - Forest disturbance characteristic inclusion (wetland and elevation) ----
 
 ### Harvest
-mDOC_harv5 <- lm(mean.doc ~ conifer_st + drainage_st + open_wat_st + slope_st + harv5_st, data = doc_tidy)
+msuva_harv5 <- lm(mean.suva ~ conifer_st + drainage_st + open_wat_st + slope_st + harv5_st, data = doc_tidy)
 
-summary(mDOC_harv5)
+summary(msuva_harv5)
 
-mDOC_harv10 <- lm(mean.doc ~ conifer_st + drainage_st + open_wat_st + slope_st + harv10_st, data = doc_tidy)
+msuva_harv10 <- lm(mean.suva ~ conifer_st + drainage_st + open_wat_st + slope_st + harv10_st, data = doc_tidy)
 
-summary(mDOC_harv10)
+summary(msuva_harv10)
 
-mDOC_harv15 <- lm(mean.doc ~ conifer_st + drainage_st + open_wat_st + slope_st + harv15_st, data = doc_tidy)
+msuva_harv15 <- lm(mean.suva ~ conifer_st + drainage_st + open_wat_st + slope_st + harv15_st, data = doc_tidy)
 
-summary(mDOC_harv15)
+summary(msuva_harv15)
 
-mDOC_harv20 <- lm(mean.doc ~ conifer_st + drainage_st + open_wat_st + slope_st + harv20_st, data = doc_tidy)
+msuva_harv20 <- lm(mean.suva ~ conifer_st + drainage_st + open_wat_st + slope_st + harv20_st, data = doc_tidy)
 
-summary(mDOC_harv20)
+summary(msuva_harv20)
 
 ### Infest
 
-mDOC_inf5 <- lm(mean.doc ~ conifer_st + drainage_st + open_wat_st + slope_st + insect5_st, data = doc_tidy)
+msuva_inf5 <- lm(mean.suva ~ conifer_st + drainage_st + open_wat_st + slope_st + insect5_st, data = doc_tidy)
 
-summary(mDOC_inf15)
+summary(msuva_inf15)
 
-mDOC_inf10 <- lm(mean.doc ~ conifer_st + drainage_st + open_wat_st + slope_st + insect10_st, data = doc_tidy)
+msuva_inf10 <- lm(mean.suva ~ conifer_st + drainage_st + open_wat_st + slope_st + insect10_st, data = doc_tidy)
 
 
-mDOC_inf15 <- lm(mean.doc ~ conifer_st + drainage_st + open_wat_st + slope_st + insect15_st, data = doc_tidy)
+msuva_inf15 <- lm(mean.suva ~ conifer_st + drainage_st + open_wat_st + slope_st + insect15_st, data = doc_tidy)
 
 ### Mixed H + I
 
-mDOC_hi5 <- lm(mean.doc ~ conifer_st + drainage_st + open_wat_st + slope_st + insect5_st + harv5_st, data = doc_tidy)
+msuva_hi5 <- lm(mean.suva ~ conifer_st + drainage_st + open_wat_st + slope_st + insect5_st + harv5_st, data = doc_tidy)
 
-mDOC_hi10 <- lm(mean.doc ~ conifer_st + drainage_st + open_wat_st + slope_st + insect10_st + harv10_st, data = doc_tidy)
+msuva_hi10 <- lm(mean.suva ~ conifer_st + drainage_st + open_wat_st + slope_st + insect10_st + harv10_st, data = doc_tidy)
 
-mDOC_hi15 <- lm(mean.doc ~ conifer_st + drainage_st + open_wat_st + slope_st + insect15_st + harv15_st, data = doc_tidy)
+msuva_hi15 <- lm(mean.suva ~ conifer_st + drainage_st + open_wat_st + slope_st + insect15_st + harv15_st, data = doc_tidy)
 
-summary(mDOC_hi15)
+summary(msuva_hi15)
 
 ### 2.2.1 Anova Assess - forest disturbance ----
 
-anova(mDOC_bm, mDOC_harv5) ## Failed to reject null; model is not sign. better
-anova(mDOC_bm, mDOC_harv10) ## Failed to reject null; model is not sign. better
-anova(mDOC_bm, mDOC_harv15) ## FtR; Nsb
-anova(mDOC_bm, mDOC_harv20) ## Failed to reject null; model is not sign. better
-anova(mDOC_bm, mDOC_inf5) ## Failed to reject null; model is not sign. better
-anova(mDOC_bm, mDOC_inf10) ## Rejected null; sign. better
-anova(mDOC_bm, mDOC_inf15) ## Rejected null; sign. better
-anova(mDOC_bm, mDOC_hi5) ## Failed to reject null; model is not sign. better
-anova(mDOC_bm, mDOC_hi10) ## Rejected null; sign. better
-anova(mDOC_bm, mDOC_hi15) ## Rejected null; sign. better
+anova(msuva_bm, msuva_harv5) ## Failed to reject null; model is not sign. better
+anova(msuva_bm, msuva_harv10) ## Failed to reject null; model is not sign. better
+anova(msuva_bm, msuva_harv15) ## FtR; Nsb
+anova(msuva_bm, msuva_harv20) ## Failed to reject null; model is not sign. better
+anova(msuva_bm, msuva_inf5) ## Failed to reject null; model is not sign. better
+anova(msuva_bm, msuva_inf10) ## Rejected null; sign. better
+anova(msuva_bm, msuva_inf15) ## Rejected null; sign. better
+anova(msuva_bm, msuva_hi5) ## Failed to reject null; model is not sign. better
+anova(msuva_bm, msuva_hi10) ## Rejected null; sign. better
+anova(msuva_bm, msuva_hi15) ## Rejected null; sign. better
 
 ### So, why does the H10 + I10 and H15 and I15 models increase explanatory power if those individual harvest years show little explanatory power when isolated? 
 
-anova(mDOC_inf10, mDOC_hi10) # this is saying that harvest + insect is sign. better than just insect
-anova(mDOC_inf15, mDOC_hi15) # same thing here; the harv + insect is a sign. better model than just insect. 
+anova(msuva_inf10, msuva_hi10) # this is saying that harvest + insect is sign. better than just insect
+anova(msuva_inf15, msuva_hi15) # same thing here; the harv + insect is a sign. better model than just insect. 
 
 
